@@ -1,0 +1,28 @@
+name: ExtendedEconomy
+version: 2.0
+main: de.jonahd345.extendedeconomy.ExtendedEconomy
+api-version: 1.18
+author: JonaHD345
+description: a extended system
+website: https://jonahd345.de
+softdepend:
+  - Vault
+  - PlaceholderAPI
+loadbefore:
+  - Guilds
+
+commands:
+  extendedeconomy:
+    aliases: [ee]
+    description: Give information about the plugin.
+  economy:
+    aliases: [eco]
+    description: That is the admin command for manage users balance.
+  money:
+    aliases: [coins]
+    description: Give the player his balance.
+  pay:
+    description: Pay other players your money.
+  balancetop:
+    aliases: [baltop, leaderboard]
+    description: List the richest player on the server.
