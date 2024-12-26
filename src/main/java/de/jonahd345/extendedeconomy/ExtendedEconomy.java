@@ -13,6 +13,7 @@ import de.jonahd345.extendedeconomy.service.UpdateService;
 import de.jonahd345.extendedeconomy.util.Metrics;
 import de.jonahd345.extendedeconomy.util.Number;
 import de.jonahd345.extendedeconomy.util.TopPlayerSerializer;
+import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
@@ -26,25 +27,25 @@ import java.util.*;
 
 public final class ExtendedEconomy extends JavaPlugin {
     private Metrics metrics;
-
-    private Economy economy;
-
     private ExpansionManager expansionManager;
 
+    @Getter
+    private Economy economy;
+    @Getter
     private UpdateService updateService;
-
+    @Getter
     private Map<UUID, EconomyPlayer> economyPlayer;
-
+    @Getter
     private List<EconomyTopPlayer> economyTopPlayer;
-
+    @Getter
     private CacheService cacheService;
-
+    @Getter
     private DatabaseProvider databaseProvider;
-
+    @Getter
     private EconomyService economyService;
-
+    @Getter
     private Number number;
-
+    @Getter
     private TopPlayerSerializer topPlayerSerializer;
 
     @Override
@@ -59,6 +60,7 @@ public final class ExtendedEconomy extends JavaPlugin {
             getLogger().info("No PlaceholderAPI was found!");
         }
 
+        // Rename the old directory to the new one (EasyEconomy -> ExtendedEconomy)
         File directory = new File("plugins/EasyEconomy");
         if (directory.exists() && directory.isDirectory()) {
             File newDirectory = new File(directory.getParent() + File.separator + this.getName());
@@ -111,9 +113,13 @@ public final class ExtendedEconomy extends JavaPlugin {
         }
     }
 
-    public void init() {
+    private void init() {
         PluginManager pluginManager = getServer().getPluginManager();
+
+        // Events
         pluginManager.registerEvents(new ConnectionListener(this), this);
+
+        // Commands
         getCommand("extendedeconomy").setExecutor(new ExtendedEconomyCommand(this));
         getCommand("economy").setExecutor(new EconomyCommand(this));
         getCommand("money").setExecutor(new MoneyCommand(this));
@@ -146,41 +152,5 @@ public final class ExtendedEconomy extends JavaPlugin {
 
     public static ExtendedEconomy getInstance() {
         return getPlugin(ExtendedEconomy.class);
-    }
-
-    public Economy getEconomy() {
-        return economy;
-    }
-
-    public UpdateService getUpdateService() {
-        return updateService;
-    }
-
-    public Map<UUID, EconomyPlayer> getEconomyPlayer() {
-        return economyPlayer;
-    }
-
-    public List<EconomyTopPlayer> getEconomyTopPlayer() {
-        return economyTopPlayer;
-    }
-
-    public CacheService getCacheService() {
-        return cacheService;
-    }
-
-    public DatabaseProvider getDatabaseProvider() {
-        return databaseProvider;
-    }
-
-    public EconomyService getEconomyService() {
-        return economyService;
-    }
-
-    public Number getNumber() {
-        return number;
-    }
-
-    public TopPlayerSerializer getTopPlayerSerializer() {
-        return topPlayerSerializer;
     }
 }
