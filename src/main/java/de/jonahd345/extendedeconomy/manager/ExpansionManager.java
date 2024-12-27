@@ -65,33 +65,6 @@ public class ExpansionManager extends PlaceholderExpansion {
                 }
             }
         }
-        /* if (parameter.equalsIgnoreCase("leaderboard_place_one")) {
-            if (this.plugin.getEconomyTopPlayer().size() >= 1) {
-                return this.plugin.getCacheService().getMessages().get("leaderboard.place_one").replace("%Player%",
-                        this.plugin.getEconomyTopPlayer().get(0).getName()).replace("%Amount%",
-                        this.plugin.getNumber().formatNumber(this.plugin.getEconomyTopPlayer().get(0).getCoins()));
-            } else {
-                return this.plugin.getCacheService().getMessages().get("leaderboard.place_one").replace("%Player%", "null").replace("%Amount%", "0");
-            }
-        }
-        if (parameter.equalsIgnoreCase("leaderboard_place_two")) {
-            if (this.plugin.getEconomyTopPlayer().size() >= 2) {
-                return this.plugin.getCacheService().getMessages().get("leaderboard.place_two").replace("%Player%",
-                        this.plugin.getEconomyTopPlayer().get(1).getName()).replace("%Amount%",
-                        this.plugin.getNumber().formatNumber(this.plugin.getEconomyTopPlayer().get(1).getCoins()));
-            } else {
-                return this.plugin.getCacheService().getMessages().get("leaderboard.place_two").replace("%Player%", "null").replace("%Amount%", "0");
-            }
-        }
-        if (parameter.equalsIgnoreCase("leaderboard_place_three")) {
-            if (this.plugin.getEconomyTopPlayer().size() >= 3) {
-                return this.plugin.getCacheService().getMessages().get("leaderboard.place_three").replace("%Player%",
-                        this.plugin.getEconomyTopPlayer().get(2).getName()).replace("%Amount%",
-                        this.plugin.getNumber().formatNumber(this.plugin.getEconomyTopPlayer().get(2).getCoins()));
-            } else {
-                return this.plugin.getCacheService().getMessages().get("leaderboard.place_three").replace("%Player%", "null").replace("%Amount%", "0");
-            }
-        } */
 
         return "%" + getIdentifier() + "_" + parameter + "%";
     }
