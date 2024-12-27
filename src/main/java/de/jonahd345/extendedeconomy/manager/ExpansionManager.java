@@ -7,11 +7,11 @@ import org.bukkit.OfflinePlayer;
 public class ExpansionManager extends PlaceholderExpansion {
     private ExtendedEconomy plugin;
 
-    private String place;
+    private String[] place;
 
     public ExpansionManager(ExtendedEconomy plugin) {
         this.plugin = plugin;
-        this.place = "one_two_three";
+        this.place = new String[]{"one", "two", "three"};
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ExpansionManager extends PlaceholderExpansion {
                     this.plugin.getEconomyTopPlayer().size() >= Integer.parseInt(parameter.split("_")[2])) {
                 if (Integer.parseInt(parameter.split("_")[2]) <= 3) {
                     return this.plugin.getCacheService().getMessages().get("leaderboard.place_" +
-                            this.place.split("_")[Integer.parseInt(parameter.split("_")[2]) - 1]).replace("%Player%",
+                            this.place[Integer.parseInt(parameter.split("_")[2]) - 1]).replace("%Player%",
                             this.plugin.getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getName()).replace("%Amount%",
                             this.plugin.getNumber().formatNumber(this.plugin.getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getCoins()));
                 } else {
@@ -57,7 +57,7 @@ public class ExpansionManager extends PlaceholderExpansion {
             } else {
                 if (Integer.parseInt(parameter.split("_")[2]) <= 3) {
                     return this.plugin.getCacheService().getMessages().get("leaderboard.place_" +
-                                    this.place.split("_")[Integer.parseInt(parameter.split("_")[2]) - 1]).replace("%Player%", "null")
+                                    this.place[Integer.parseInt(parameter.split("_")[2]) - 1]).replace("%Player%", "null")
                             .replace("%Amount%", "0").replace("%Place%", parameter.split("_")[2]);
                 } else {
                     return this.plugin.getCacheService().getMessages().get("leaderboard.place_other").replace("%Player%", "null")
