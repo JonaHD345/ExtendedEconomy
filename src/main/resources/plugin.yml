@@ -19,7 +19,7 @@ commands:
     aliases: [eco]
     description: That is the admin command for manage users balance.
   money:
-    aliases: [coins]
+    aliases: [coins, balance]
     description: Give the player his balance.
   pay:
     description: Pay other players your money.
