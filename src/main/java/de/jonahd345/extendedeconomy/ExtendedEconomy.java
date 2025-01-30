@@ -1,13 +1,15 @@
 package de.jonahd345.extendedeconomy;
 
 import de.jonahd345.extendedeconomy.command.*;
+import de.jonahd345.extendedeconomy.config.Config;
+import de.jonahd345.extendedeconomy.config.ConfigType;
 import de.jonahd345.extendedeconomy.listener.ConnectionListener;
 import de.jonahd345.extendedeconomy.manager.ExpansionManager;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
 import de.jonahd345.extendedeconomy.model.EconomyTopPlayer;
 import de.jonahd345.extendedeconomy.provider.DatabaseProvider;
 import de.jonahd345.extendedeconomy.provider.EconomyProvider;
-import de.jonahd345.extendedeconomy.service.CacheService;
+import de.jonahd345.extendedeconomy.service.ConfigService;
 import de.jonahd345.extendedeconomy.service.EconomyService;
 import de.jonahd345.extendedeconomy.service.UpdateService;
 import de.jonahd345.extendedeconomy.util.Metrics;
@@ -37,7 +39,7 @@ public final class ExtendedEconomy extends JavaPlugin {
 
     private List<EconomyTopPlayer> economyTopPlayer;
 
-    private CacheService cacheService;
+    private ConfigService configService;
 
     private DatabaseProvider databaseProvider;
 
@@ -73,12 +75,12 @@ public final class ExtendedEconomy extends JavaPlugin {
         this.economyPlayer = new HashMap<>();
         this.economyTopPlayer = new ArrayList<>();
 
-        this.cacheService = new CacheService(this);
-        this.cacheService.loadCache();
+        this.configService = new ConfigService(this);
+        this.configService.loadCache();
 
-        if (CacheService.MYSQL) {
-            this.databaseProvider = new DatabaseProvider(this.cacheService.getMessages().get("mysql.host"), this.cacheService.getMessages().get("mysql.port"),
-                    this.cacheService.getMessages().get("mysql.user"), this.cacheService.getMessages().get("mysql.password"), this.cacheService.getMessages().get("mysql.database"));
+        if (ConfigService.MYSQL) {
+            this.databaseProvider = new DatabaseProvider(this.configService.getMessages().get("mysql.host"), this.configService.getMessages().get("mysql.port"),
+                    this.configService.getMessages().get("mysql.user"), this.configService.getMessages().get("mysql.password"), this.configService.getMessages().get("mysql.database"));
             this.databaseProvider.update("RENAME TABLE IF EXISTS easyeconomy_coins TO extendedeconomy_coins;");
             this.databaseProvider.update("CREATE TABLE IF NOT EXISTS extendedeconomy_coins(uuid VARCHAR(128), coins VARCHAR(128));");
         }
@@ -89,7 +91,6 @@ public final class ExtendedEconomy extends JavaPlugin {
         this.economyService.setupTopPlayers();
 
         this.number = new Number();
-
         this.init();
 
         new BukkitRunnable() {
@@ -106,7 +107,7 @@ public final class ExtendedEconomy extends JavaPlugin {
     public void onDisable() {
         Bukkit.getOnlinePlayers().forEach(player -> this.economyService.pushEconomyPlayer(player.getUniqueId()));
         this.economyService.pushTopPlayers();
-        if (CacheService.MYSQL) {
+        if (ConfigService.MYSQL) {
             this.databaseProvider.disconnect();
         }
     }
@@ -164,8 +165,8 @@ public final class ExtendedEconomy extends JavaPlugin {
         return economyTopPlayer;
     }
 
-    public CacheService getCacheService() {
-        return cacheService;
+    public ConfigService getCacheService() {
+        return configService;
     }
 
     public DatabaseProvider getDatabaseProvider() {
