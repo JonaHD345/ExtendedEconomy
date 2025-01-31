@@ -31,7 +31,7 @@ public class EconomyService {
     }
 
     public void loadEconomyPlayer(UUID uuid) {
-        if (CacheService.MYSQL) {
+        if (ConfigService.MYSQL) {
             PreparedStatement preparedStatement = null;
             ResultSet resultSet = null;
             try {
@@ -67,7 +67,7 @@ public class EconomyService {
     }
 
     public void pushEconomyPlayer(UUID uuid) {
-        if (CacheService.MYSQL) {
+        if (ConfigService.MYSQL) {
             PreparedStatement preparedStatement = null;
             delete(uuid);
             try {
