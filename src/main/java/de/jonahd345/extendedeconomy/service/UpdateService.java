@@ -1,6 +1,7 @@
 package de.jonahd345.extendedeconomy.service;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
+import de.jonahd345.extendedeconomy.config.Message;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -30,14 +31,14 @@ public class UpdateService {
             con.setRequestMethod("GET");
             this.spigotVersion = new BufferedReader(new InputStreamReader(con.getInputStream())).readLine();
         } catch (Exception e) {
-            this.plugin.getLogger().info(this.plugin.getConfigService().getMessages().get("messages.prefix") + "Failed to check for updates on spigot.");
+            this.plugin.getLogger().info(Message.PREFIX.getMessage() + "§7Failed to check for updates on spigot.");
             return;
         }
 
         if (this.spigotVersion != null && !this.spigotVersion.isEmpty()) {
             this.updateAvailable = this.spigotIsNewer();
             if (this.updateAvailable) {
-                this.plugin.getLogger().info("The new Version from ExtendedEconomy v" +
+                this.plugin.getLogger().info(Message.PREFIX.getMessage() + "§7The new Version from ExtendedEconomy v" +
                         this.spigotVersion + " is available at: https://www.spigotmc.org/resources/extendedeconomy.106888/");
             }
         }

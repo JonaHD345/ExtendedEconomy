@@ -1,6 +1,8 @@
 package de.jonahd345.extendedeconomy;
 
 import de.jonahd345.extendedeconomy.command.*;
+import de.jonahd345.extendedeconomy.config.Config;
+import de.jonahd345.extendedeconomy.config.MySql;
 import de.jonahd345.extendedeconomy.listener.ConnectionListener;
 import de.jonahd345.extendedeconomy.manager.ExpansionManager;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
@@ -78,9 +80,8 @@ public final class ExtendedEconomy extends JavaPlugin {
         this.configService = new ConfigService(this);
         this.configService.loadConfig();
 
-        if (ConfigService.MYSQL) {
-            this.databaseProvider = new DatabaseProvider(this.configService.getMessages().get("mysql.host"), this.configService.getMessages().get("mysql.port"),
-                    this.configService.getMessages().get("mysql.user"), this.configService.getMessages().get("mysql.password"), this.configService.getMessages().get("mysql.database"));
+        if (Config.MYSQL.getValueAsBoolean()) {
+            this.databaseProvider = new DatabaseProvider(MySql.HOST.getValue(), MySql.PORT.getValue(), MySql.USER.getValue(), MySql.PASSWORD.getValue(), MySql.DATABASE.getValue());
             this.databaseProvider.update("RENAME TABLE IF EXISTS easyeconomy_coins TO extendedeconomy_coins;");
             this.databaseProvider.update("CREATE TABLE IF NOT EXISTS extendedeconomy_coins(uuid VARCHAR(128), coins VARCHAR(128));");
         }
@@ -117,7 +118,7 @@ public final class ExtendedEconomy extends JavaPlugin {
     public void onDisable() {
         Bukkit.getOnlinePlayers().forEach(player -> this.economyService.pushEconomyPlayer(player.getUniqueId()));
         this.economyService.pushTopPlayers();
-        if (ConfigService.MYSQL) {
+        if (Config.MYSQL.getValueAsBoolean()) {
             this.databaseProvider.disconnect();
         }
     }

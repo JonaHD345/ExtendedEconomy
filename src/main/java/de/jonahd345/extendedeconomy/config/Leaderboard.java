@@ -20,11 +20,19 @@ public enum Leaderboard {
         this.defaultValue = defaultValue;
     }
 
+    public String getValueAsString() {
+        return this.value.toString();
+    }
+
     public Integer getDefaultValueAsInt() {
         return Integer.valueOf(this.defaultValue.toString());
     }
 
     public Integer getValueAsInt() {
         try { return Integer.valueOf(this.value.toString()); } catch (NumberFormatException e) { return this.getDefaultValueAsInt(); }
+    }
+
+    public static String getLeaderboardWithMessagePrefix(Leaderboard leaderboard) {
+        return Message.PREFIX.getMessage() + leaderboard.getValue();
     }
 }

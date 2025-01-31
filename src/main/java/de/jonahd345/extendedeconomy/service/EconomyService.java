@@ -1,6 +1,7 @@
 package de.jonahd345.extendedeconomy.service;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
+import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
 import de.jonahd345.extendedeconomy.model.EconomyTopPlayer;
 import de.jonahd345.extendedeconomy.util.UUIDFetcher;
@@ -31,7 +32,7 @@ public class EconomyService {
     }
 
     public void loadEconomyPlayer(UUID uuid) {
-        if (ConfigService.MYSQL) {
+        if (Config.MYSQL.getValueAsBoolean()) {
             PreparedStatement preparedStatement = null;
             ResultSet resultSet = null;
             try {
@@ -54,20 +55,20 @@ public class EconomyService {
             }
             if (!(this.plugin.getEconomyPlayer().containsKey(uuid))) {
                 this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid));
-                this.plugin.getEconomyPlayer().get(uuid).setCoins(Double.parseDouble(this.plugin.getConfigService().getMessages().get("config.startcoins")));
+                this.plugin.getEconomyPlayer().get(uuid).setCoins(Config.STARTCOINS.getValueAsDouble());
             }
         } else {
             if (this.yamlConfiguration.isSet(uuid.toString())) {
                 this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid, this.yamlConfiguration.getLong(uuid.toString())));
             } else {
                 this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid));
-                this.plugin.getEconomyPlayer().get(uuid).setCoins(Double.parseDouble(this.plugin.getConfigService().getMessages().get("config.startcoins")));
+                this.plugin.getEconomyPlayer().get(uuid).setCoins(Config.STARTCOINS.getValueAsDouble());
             }
         }
     }
 
     public void pushEconomyPlayer(UUID uuid) {
-        if (ConfigService.MYSQL) {
+        if (Config.MYSQL.getValueAsBoolean()) {
             PreparedStatement preparedStatement = null;
             delete(uuid);
             try {
@@ -144,6 +145,7 @@ public class EconomyService {
         File fileTopPlayers = new File("plugins/" + this.plugin.getName() + "/leaderboard.yml");
         YamlConfiguration yamlConfigurationTopPlayers = YamlConfiguration.loadConfiguration(fileTopPlayers);
         List<String> list = new ArrayList<>();
+
         for (EconomyTopPlayer economyTopPlayer : this.plugin.getEconomyTopPlayer()) {
             list.add(this.plugin.getTopPlayerSerializer().setTopPlayer(economyTopPlayer));
         }

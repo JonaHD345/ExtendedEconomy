@@ -30,7 +30,7 @@ public enum Message {
         this.defaultMessage = defaultMessage;
     }
 
-    public String getMessageWithPrefix(Message message) {
+    public static String getMessageWithPrefix(Message message) {
         return PREFIX.getMessage() + message.getMessage();
     }
 }
