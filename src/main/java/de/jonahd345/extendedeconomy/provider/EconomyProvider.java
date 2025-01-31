@@ -162,59 +162,59 @@ public class EconomyProvider implements Economy {
 
     @Override
     public EconomyResponse createBank(String s, String s1) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getCacheService().getMessages().get("prefix") +
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getConfigService().getMessages().get("prefix") +
                 "ExtendedEconomy doesn't support bank accounts!");
     }
 
     @Override
     public EconomyResponse createBank(String s, OfflinePlayer offlinePlayer) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getCacheService().getMessages().get("prefix") +
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getConfigService().getMessages().get("prefix") +
                 "ExtendedEconomy doesn't support bank accounts!");
     }
 
     @Override
     public EconomyResponse deleteBank(String s) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getCacheService().getMessages().get("prefix") +
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getConfigService().getMessages().get("prefix") +
                 "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse bankBalance(String s) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getCacheService().getMessages().get("prefix") +
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getConfigService().getMessages().get("prefix") +
                 "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse bankHas(String s, double v) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getCacheService().getMessages().get("prefix") +
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getConfigService().getMessages().get("prefix") +
                 "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse bankWithdraw(String s, double v) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getCacheService().getMessages().get("prefix") +
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getConfigService().getMessages().get("prefix") +
                 "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse bankDeposit(String s, double v) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getCacheService().getMessages().get("prefix") +
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getConfigService().getMessages().get("prefix") +
                 "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse isBankOwner(String s, String s1) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getCacheService().getMessages().get("prefix") +
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getConfigService().getMessages().get("prefix") +
                 "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse isBankOwner(String s, OfflinePlayer offlinePlayer) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getCacheService().getMessages().get("prefix") +
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getConfigService().getMessages().get("prefix") +
                 "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse isBankMember(String s, String s1) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getCacheService().getMessages().get("prefix") +
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getConfigService().getMessages().get("prefix") +
                 "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse isBankMember(String s, OfflinePlayer offlinePlayer) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getCacheService().getMessages().get("prefix") +
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, this.plugin.getConfigService().getMessages().get("prefix") +
                 "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override

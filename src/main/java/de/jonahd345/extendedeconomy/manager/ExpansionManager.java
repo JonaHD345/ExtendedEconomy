@@ -35,7 +35,7 @@ public class ExpansionManager extends PlaceholderExpansion {
             return this.plugin.getNumber().formatNumber(this.plugin.getEconomyPlayer().get(player.getUniqueId()).getCoins());
         }
         if (parameter.equalsIgnoreCase("leaderboard_headline")) {
-            return this.plugin.getCacheService().getMessages().get("leaderboard.headline");
+            return this.plugin.getConfigService().getMessages().get("leaderboard.headline");
         }
         if (parameter.equalsIgnoreCase("leaderboard_blank")) {
             return " ";
@@ -44,23 +44,23 @@ public class ExpansionManager extends PlaceholderExpansion {
             if (this.plugin.getNumber().isInt(parameter.split("_")[2]) &&
                     this.plugin.getEconomyTopPlayer().size() >= Integer.parseInt(parameter.split("_")[2])) {
                 if (Integer.parseInt(parameter.split("_")[2]) <= 3) {
-                    return this.plugin.getCacheService().getMessages().get("leaderboard.place_" +
+                    return this.plugin.getConfigService().getMessages().get("leaderboard.place_" +
                             this.place[Integer.parseInt(parameter.split("_")[2]) - 1]).replace("%Player%",
                             this.plugin.getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getName()).replace("%Amount%",
                             this.plugin.getNumber().formatNumber(this.plugin.getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getCoins()));
                 } else {
-                    return this.plugin.getCacheService().getMessages().get("leaderboard.place_other").replace("%Player%",
+                    return this.plugin.getConfigService().getMessages().get("leaderboard.place_other").replace("%Player%",
                                     this.plugin.getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getName()).replace("%Amount%",
                                     this.plugin.getNumber().formatNumber(this.plugin.getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getCoins()))
                             .replace("%Place%", parameter.split("_")[2]);
                 }
             } else {
                 if (Integer.parseInt(parameter.split("_")[2]) <= 3) {
-                    return this.plugin.getCacheService().getMessages().get("leaderboard.place_" +
+                    return this.plugin.getConfigService().getMessages().get("leaderboard.place_" +
                                     this.place[Integer.parseInt(parameter.split("_")[2]) - 1]).replace("%Player%", "null")
                             .replace("%Amount%", "0").replace("%Place%", parameter.split("_")[2]);
                 } else {
-                    return this.plugin.getCacheService().getMessages().get("leaderboard.place_other").replace("%Player%", "null")
+                    return this.plugin.getConfigService().getMessages().get("leaderboard.place_other").replace("%Player%", "null")
                             .replace("%Amount%", "0").replace("%Place%", parameter.split("_")[2]);
                 }
             }

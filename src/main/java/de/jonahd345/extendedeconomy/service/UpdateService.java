@@ -30,7 +30,7 @@ public class UpdateService {
             con.setRequestMethod("GET");
             this.spigotVersion = new BufferedReader(new InputStreamReader(con.getInputStream())).readLine();
         } catch (Exception e) {
-            this.plugin.getLogger().info(this.plugin.getCacheService().getMessages().get("messages.prefix") + "Failed to check for updates on spigot.");
+            this.plugin.getLogger().info(this.plugin.getConfigService().getMessages().get("messages.prefix") + "Failed to check for updates on spigot.");
             return;
         }
 

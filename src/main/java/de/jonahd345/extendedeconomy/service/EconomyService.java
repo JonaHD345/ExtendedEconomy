@@ -54,14 +54,14 @@ public class EconomyService {
             }
             if (!(this.plugin.getEconomyPlayer().containsKey(uuid))) {
                 this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid));
-                this.plugin.getEconomyPlayer().get(uuid).setCoins(Double.parseDouble(this.plugin.getCacheService().getMessages().get("config.startcoins")));
+                this.plugin.getEconomyPlayer().get(uuid).setCoins(Double.parseDouble(this.plugin.getConfigService().getMessages().get("config.startcoins")));
             }
         } else {
             if (this.yamlConfiguration.isSet(uuid.toString())) {
                 this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid, this.yamlConfiguration.getLong(uuid.toString())));
             } else {
                 this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid));
-                this.plugin.getEconomyPlayer().get(uuid).setCoins(Double.parseDouble(this.plugin.getCacheService().getMessages().get("config.startcoins")));
+                this.plugin.getEconomyPlayer().get(uuid).setCoins(Double.parseDouble(this.plugin.getConfigService().getMessages().get("config.startcoins")));
             }
         }
     }

@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 
 public class EconomyCommand implements CommandExecutor, TabCompleter {
     private ExtendedEconomy plugin;
@@ -23,7 +22,7 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender.hasPermission("extendedeconomy.command.economy") || sender.hasPermission("extendedeconomy.admin"))) {
-            sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") + this.plugin.getCacheService().getMessages().get("messages.no_permission"));
+            sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + this.plugin.getConfigService().getMessages().get("messages.no_permission"));
             return true;
         }
 
@@ -34,24 +33,24 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                 if (target == null) {
                     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
                     this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
-                    sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") +
-                            this.plugin.getCacheService().getMessages().get("messages.moneyother_message").replace("%Player%", offlinePlayer.getName()).replace("%Amount%",
+                    sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") +
+                            this.plugin.getConfigService().getMessages().get("messages.moneyother_message").replace("%Player%", offlinePlayer.getName()).replace("%Amount%",
                             String.valueOf(this.plugin.getNumber().formatNumber(this.plugin.getEconomy().getBalance(offlinePlayer)))));
                     this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
                     return true;
                 }
-                sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") +
-                        this.plugin.getCacheService().getMessages().get("messages.moneyother_message").replace("%Player%", target.getName()).replace("%Amount%",
+                sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") +
+                        this.plugin.getConfigService().getMessages().get("messages.moneyother_message").replace("%Player%", target.getName()).replace("%Amount%",
                         String.valueOf(this.plugin.getNumber().formatNumber(this.plugin.getEconomy().getBalance(target)))));
             } else {
-                sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") + "Use /economy <set|add|take|info> <Player> <Amount>");
+                sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + "Use /economy <set|add|take|info> <Player> <Amount>");
             }
         } else if (args.length == 3) {
             if (args[0].equalsIgnoreCase("set")) {
                 Player target = Bukkit.getPlayer(args[1]);
 
                 if (!(this.plugin.getNumber().isDouble(args[2]))) {
-                    sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") + this.plugin.getCacheService().getMessages().get("messages.no_number"));
+                    sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + this.plugin.getConfigService().getMessages().get("messages.no_number"));
                     return true;
                 }
                 double amount = Double.parseDouble(args[2]);
@@ -61,21 +60,21 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     this.plugin.getEconomy().withdrawPlayer(offlinePlayer, this.plugin.getEconomy().getBalance(offlinePlayer));
                     this.plugin.getEconomy().depositPlayer(offlinePlayer, amount);
                     this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
-                    sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") +
-                            this.plugin.getCacheService().getMessages().get("messages.ecoset_message").replace("%Player%",
+                    sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") +
+                            this.plugin.getConfigService().getMessages().get("messages.ecoset_message").replace("%Player%",
                             offlinePlayer.getName()).replace("%Amount%", this.plugin.getNumber().formatNumber(amount)));
                     return true;
                 }
                 this.plugin.getEconomy().withdrawPlayer(target, this.plugin.getEconomy().getBalance(target));
                 this.plugin.getEconomy().depositPlayer(target, amount);
-                sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") +
-                        this.plugin.getCacheService().getMessages().get("messages.ecoset_message").replace("%Player%", target.getName()).replace("%Amount%",
+                sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") +
+                        this.plugin.getConfigService().getMessages().get("messages.ecoset_message").replace("%Player%", target.getName()).replace("%Amount%",
                         this.plugin.getNumber().formatNumber(amount)));
             } else if (args[0].equalsIgnoreCase("add")) {
                 Player target = Bukkit.getPlayer(args[1]);
 
                 if (!(this.plugin.getNumber().isDouble(args[2]))) {
-                    sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") + this.plugin.getCacheService().getMessages().get("messages.no_number"));
+                    sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + this.plugin.getConfigService().getMessages().get("messages.no_number"));
                     return true;
                 }
                 double amount = Double.parseDouble(args[2]);
@@ -84,20 +83,20 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
                     this.plugin.getEconomy().depositPlayer(offlinePlayer, amount);
                     this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
-                    sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") +
-                            this.plugin.getCacheService().getMessages().get("messages.ecoadd_message").replace("%Player%",
+                    sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") +
+                            this.plugin.getConfigService().getMessages().get("messages.ecoadd_message").replace("%Player%",
                             offlinePlayer.getName()).replace("%Amount%", this.plugin.getNumber().formatNumber(amount)));
                     return true;
                 }
                 this.plugin.getEconomy().depositPlayer(target, amount);
-                sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") +
-                        this.plugin.getCacheService().getMessages().get("messages.ecoadd_message").replace("%Player%", target.getName()).replace("%Amount%",
+                sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") +
+                        this.plugin.getConfigService().getMessages().get("messages.ecoadd_message").replace("%Player%", target.getName()).replace("%Amount%",
                         this.plugin.getNumber().formatNumber(amount)));
             } else if (args[0].equalsIgnoreCase("take")) {
                 Player target = Bukkit.getPlayer(args[1]);
 
                 if (!(this.plugin.getNumber().isDouble(args[2]))) {
-                    sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") + this.plugin.getCacheService().getMessages().get("messages.no_number"));
+                    sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + this.plugin.getConfigService().getMessages().get("messages.no_number"));
                     return true;
                 }
                 double amount = Double.parseDouble(args[2]);
@@ -105,29 +104,29 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                     this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
                     if (this.plugin.getEconomy().getBalance(offlinePlayer) - amount < 0) {
-                        sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") + "You cannot set the balance below 0!");
+                        sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + "You cannot set the balance below 0!");
                         return true;
                     }
                     this.plugin.getEconomy().withdrawPlayer(offlinePlayer, amount);
                     this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
-                    sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") +
-                            this.plugin.getCacheService().getMessages().get("messages.ecotake_message").replace("%Player%",
+                    sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") +
+                            this.plugin.getConfigService().getMessages().get("messages.ecotake_message").replace("%Player%",
                             offlinePlayer.getName()).replace("%Amount%", this.plugin.getNumber().formatNumber(amount)));
                     return true;
                 }
                 if (this.plugin.getEconomy().getBalance(target) - amount < 0) {
-                    sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") + "You cannot set the balance below 0!");
+                    sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + "You cannot set the balance below 0!");
                     return true;
                 }
                 this.plugin.getEconomy().withdrawPlayer(target, amount);
-                sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") +
-                        this.plugin.getCacheService().getMessages().get("messages.ecotake_message").replace("%Player%", target.getName()).replace("%Amount%",
+                sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") +
+                        this.plugin.getConfigService().getMessages().get("messages.ecotake_message").replace("%Player%", target.getName()).replace("%Amount%",
                         this.plugin.getNumber().formatNumber(amount)));
             } else {
-                sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") + "Use /economy <set|add|take|info> <Player> <Amount>");
+                sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + "Use /economy <set|add|take|info> <Player> <Amount>");
             }
         } else {
-            sender.sendMessage(this.plugin.getCacheService().getMessages().get("messages.prefix") + "Use /economy <set|add|take|info> <Player> <Amount>");
+            sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + "Use /economy <set|add|take|info> <Player> <Amount>");
         }
         return false;
     }
