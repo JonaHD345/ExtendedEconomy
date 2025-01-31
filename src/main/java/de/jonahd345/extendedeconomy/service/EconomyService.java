@@ -4,11 +4,11 @@ import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
 import de.jonahd345.extendedeconomy.model.EconomyTopPlayer;
+import de.jonahd345.extendedeconomy.util.FileUtil;
 import de.jonahd345.extendedeconomy.util.UUIDFetcher;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -91,7 +91,7 @@ public class EconomyService {
         } else {
             this.yamlConfiguration.set(uuid.toString(), this.plugin.getEconomyPlayer().get(uuid).getCoins());
             this.plugin.getEconomyPlayer().remove(uuid);
-            this.saveFile(this.file, this.yamlConfiguration);
+            FileUtil.saveFile(this.yamlConfiguration, this.file);
         }
     }
 
@@ -150,21 +150,13 @@ public class EconomyService {
             list.add(this.plugin.getTopPlayerSerializer().setTopPlayer(economyTopPlayer));
         }
         yamlConfigurationTopPlayers.set("leaderboard", list);
-        this.saveFile(fileTopPlayers, yamlConfigurationTopPlayers);
+        FileUtil.saveFile(yamlConfigurationTopPlayers, fileTopPlayers);
         this.plugin.getEconomyTopPlayer().clear();
     }
 
     private void checkFileExists(File file, YamlConfiguration yamlConfiguration) {
         if (!(file.exists())) {
-            this.saveFile(file, yamlConfiguration);
-        }
-    }
-
-    private void saveFile(File file, YamlConfiguration yamlConfiguration) {
-        try {
-            yamlConfiguration.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
+            FileUtil.saveFile(yamlConfiguration, file);
         }
     }
 }
