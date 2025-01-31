@@ -1,115 +1,82 @@
 package de.jonahd345.extendedeconomy.service;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
-import org.bukkit.ChatColor;
+import de.jonahd345.extendedeconomy.config.Config;
+import de.jonahd345.extendedeconomy.config.Leaderboard;
+import de.jonahd345.extendedeconomy.config.Message;
+import de.jonahd345.extendedeconomy.util.FileUtil;
+import de.jonahd345.extendedeconomy.util.StringUtil;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 public class ConfigService {
     private ExtendedEconomy plugin;
 
     private File file;
+
     private FileConfiguration yamlConfiguration;
-
-    public static boolean MYSQL;
-
-    public Map<String, String> messages;
 
     public ConfigService(ExtendedEconomy plugin) {
         this.plugin = plugin;
         this.file = new File("plugins/" + this.plugin.getName() + "/config.yml");
         this.yamlConfiguration = YamlConfiguration.loadConfiguration(this.file);
-        this.messages = new HashMap<>();
         this.checkFileExists();
-        this.updateFromAnOlderVersion();
     }
 
-    public void loadCache() {
-        this.messages.clear();
+    public void loadConfig() {
         this.yamlConfiguration = YamlConfiguration.loadConfiguration(this.file);
+        boolean hasFileChanges = false;
 
-        MYSQL = this.yamlConfiguration.getBoolean("config.mysql");
-
-        for (String key : this.yamlConfiguration.getKeys(true)) {
-            if (!(key.equalsIgnoreCase("config") || key.equalsIgnoreCase("mysql") || key.equalsIgnoreCase("messages") ||
-                    key.equalsIgnoreCase("leaderboard"))) {
-                this.messages.put(key, this.translateColorCodes(this.yamlConfiguration.getString(key)));
+        // Config
+        for (Config config : Config.values()) {
+            if (!(this.file.exists()) || this.yamlConfiguration.getString("config." + config.name().toLowerCase()) == null) {
+                this.yamlConfiguration.set("config." + config.name().toLowerCase(), config.getValue().toString());
+                hasFileChanges = true;
+                // set Config's config to his default config and skip the next line, because by new mess yamlConfiguration.getString is null
+                config.setValue(StringUtil.translateColorCodes(config.getDefaultValue().toString()));
+                continue;
             }
+            config.setValue(StringUtil.translateColorCodes(this.yamlConfiguration.getString("config." + config.name().toLowerCase())));
+        }
+        // Messages
+        for (Message message : Message.values()) {
+            if (!(this.file.exists()) || this.yamlConfiguration.getString("messages." + message.name().toLowerCase()) == null) {
+                this.yamlConfiguration.set("messages." + message.name().toLowerCase(), message.getDefaultMessage());
+                hasFileChanges = true;
+                // set Message's message to his default message and skip the next line, because by new mess yamlConfiguration.getString is null
+                message.setMessage(StringUtil.translateColorCodes(message.getDefaultMessage()));
+                continue;
+            }
+            message.setMessage(StringUtil.translateColorCodes(this.yamlConfiguration.getString("messages." + message.name().toLowerCase())));
+        }
+        // Leaderboard
+        for (Leaderboard leaderboard : Leaderboard.values()) {
+            if (!(this.file.exists()) || this.yamlConfiguration.getString("leaderboard." + leaderboard.name().toLowerCase()) == null) {
+                this.yamlConfiguration.set("leaderboard." + leaderboard.name().toLowerCase(), leaderboard.getDefaultValue().toString());
+                hasFileChanges = true;
+                // set Message's message to his default message and skip the next line, because by new mess yamlConfiguration.getString is null
+                leaderboard.setValue(StringUtil.translateColorCodes(leaderboard.getDefaultValue().toString()));
+                continue;
+            }
+            leaderboard.setValue(StringUtil.translateColorCodes(this.yamlConfiguration.getString("leaderboard." + leaderboard.name().toLowerCase())));
+        }
+        if (hasFileChanges) {
+            FileUtil.saveFile(this.yamlConfiguration, this.file);
         }
     }
 
     private void checkFileExists() {
-        if (!(this.file.exists())) {
-            this.yamlConfiguration.set("config.mysql", false);
-            this.yamlConfiguration.set("config.startcoins", "1000");
+        // Rename old config (update from version < 2.1)
+        if (this.file.exists() // check if file exists without 2 random messages with the new path
+                && this.yamlConfiguration.getString("messages.get_money") == null
+                && this.yamlConfiguration.getString("messages.eco_take") == null) {
+            File oldFile = new File("plugins/" + this.plugin.getName() + "/configOld.yml");
+            this.file.renameTo(oldFile);
 
-            this.yamlConfiguration.set("mysql.host", "127.0.0.1");
-            this.yamlConfiguration.set("mysql.port", "3306");
-            this.yamlConfiguration.set("mysql.user", "root");
-            this.yamlConfiguration.set("mysql.password", "iamcool");
-            this.yamlConfiguration.set("mysql.database", "extendedeconomy");
-
-            this.yamlConfiguration.set("messages.prefix", "&a&lEXTENDEDECONOMY §8» &7");
-            this.yamlConfiguration.set("messages.no_permission", "No permission!");
-            this.yamlConfiguration.set("messages.no_playermessage", "You must be a player!");
-            this.yamlConfiguration.set("messages.playernotfound", "Player not found!");
-            this.yamlConfiguration.set("messages.no_number", "You have to enter a number!");
-            this.yamlConfiguration.set("messages.no_money", "You haven't enough money!");
-            this.yamlConfiguration.set("messages.pay_message", "You have %Player% payed %Amount%!");
-            this.yamlConfiguration.set("messages.getmoney_message", "You received %Amount% from %Player%!");
-            this.yamlConfiguration.set("messages.money_message", "You have %Amount% coins!");
-            this.yamlConfiguration.set("messages.moneyother_message", "The %Player% have %Amount% coins!");
-            this.yamlConfiguration.set("messages.pay_exeption", "You can't pay yourself!");
-            this.yamlConfiguration.set("messages.ecoset_message", "You set %Player%'s balance %Amount%!");
-            this.yamlConfiguration.set("messages.ecoadd_message", "You add %Player%'s balance %Amount%!");
-            this.yamlConfiguration.set("messages.ecotake_message", "You took %Amount% from %Player%!");
-            this.yamlConfiguration.set("messages.error", "ERROR");
-            this.yamlConfiguration.set("messages.line", "&8&m---------------------------------------");
-
-            this.yamlConfiguration.set("leaderboard.size", "5");
-            this.yamlConfiguration.set("leaderboard.headline", "&2&lLEADERBOARD");
-            this.yamlConfiguration.set("leaderboard.place_one", "&61&7. &a%Player% &7with &2%Amount% &aCoins");
-            this.yamlConfiguration.set("leaderboard.place_two", "&72&7. &a%Player% &7with &2%Amount% &aCoins");
-            this.yamlConfiguration.set("leaderboard.place_three", "&e3&7. &a%Player% &7with &2%Amount% &aCoins");
-            this.yamlConfiguration.set("leaderboard.place_other", "&f%Place%&7. &a%Player% &7with &2%Amount% &aCoins");
-
-            this.saveFile();
+            this.file = new File("plugins/" + this.plugin.getName() + "/config.yml");
         }
-    }
-
-    private void updateFromAnOlderVersion() {
-        //v1.2
-        if (!(this.yamlConfiguration.isSet("messages.error"))) {
-            this.yamlConfiguration.set("messages.error", "ERROR");
-            this.yamlConfiguration.set("messages.line", "&8&m---------------------------------------");
-            this.yamlConfiguration.set("leaderboard.size", "5");
-            this.yamlConfiguration.set("leaderboard.headline", "&2&lLEADERBOARD");
-            this.yamlConfiguration.set("leaderboard.place_one", "&61&7. &a%Player% &7with &2%Amount% &aCoins");
-            this.yamlConfiguration.set("leaderboard.place_two", "&72&7. &a%Player% &7with &2%Amount% &aCoins");
-            this.yamlConfiguration.set("leaderboard.place_three", "&e3&7. &a%Player% &7with &2%Amount% &aCoins");
-            this.yamlConfiguration.set("leaderboard.place_other", "&f%Place%&7. &a%Player% &7with &2%Amount% &aCoins");
-            this.saveFile();
-        }
-    }
-
-    public void saveFile() {
-        try {
-            this.yamlConfiguration.save(this.file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String translateColorCodes(String input) {
-        return ChatColor.translateAlternateColorCodes('&', input);
-    }
-
-    public Map<String, String> getMessages() {
-        return messages;
     }
 }

@@ -76,7 +76,7 @@ public final class ExtendedEconomy extends JavaPlugin {
         this.economyTopPlayer = new ArrayList<>();
 
         this.configService = new ConfigService(this);
-        this.configService.loadCache();
+        this.configService.loadConfig();
 
         if (ConfigService.MYSQL) {
             this.databaseProvider = new DatabaseProvider(this.configService.getMessages().get("mysql.host"), this.configService.getMessages().get("mysql.port"),

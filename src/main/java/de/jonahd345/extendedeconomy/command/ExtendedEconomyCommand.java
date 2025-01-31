@@ -48,7 +48,7 @@ public class ExtendedEconomyCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + this.plugin.getConfigService().getMessages().get("messages.no_permission"));
                     return true;
                 }
-                this.plugin.getConfigService().loadCache();
+                this.plugin.getConfigService().loadConfig();
                 sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + "reload is done!");
             } else {
                 sender.sendMessage(this.plugin.getConfigService().getMessages().get("messages.prefix") + this.plugin.getConfigService().getMessages().get("messages.line"));
