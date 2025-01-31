@@ -13,7 +13,6 @@ import de.jonahd345.extendedeconomy.service.ConfigService;
 import de.jonahd345.extendedeconomy.service.EconomyService;
 import de.jonahd345.extendedeconomy.service.UpdateService;
 import de.jonahd345.extendedeconomy.util.Metrics;
-import de.jonahd345.extendedeconomy.util.Number;
 import de.jonahd345.extendedeconomy.util.TopPlayerSerializer;
 import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
@@ -27,27 +26,17 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.util.*;
 
+@Getter
 public final class ExtendedEconomy extends JavaPlugin {
     private Metrics metrics;
     private ExpansionManager expansionManager;
-
-    @Getter
     private Economy economy;
-    @Getter
     private UpdateService updateService;
-    @Getter
     private Map<UUID, EconomyPlayer> economyPlayer;
-    @Getter
     private List<EconomyTopPlayer> economyTopPlayer;
-    @Getter
     private ConfigService configService;
-    @Getter
     private DatabaseProvider databaseProvider;
-    @Getter
     private EconomyService economyService;
-    @Getter
-    private Number number;
-    @Getter
     private TopPlayerSerializer topPlayerSerializer;
 
     @Override
@@ -91,7 +80,6 @@ public final class ExtendedEconomy extends JavaPlugin {
         this.economyService = new EconomyService(this);
         this.economyService.setupTopPlayers();
 
-        this.number = new Number();
 
         this.init();
 

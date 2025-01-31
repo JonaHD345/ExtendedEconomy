@@ -2,6 +2,7 @@ package de.jonahd345.extendedeconomy.command;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Message;
+import de.jonahd345.extendedeconomy.util.NumberUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -34,7 +35,7 @@ public class PayCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2) {
             Player target = Bukkit.getPlayer(args[0]);
 
-            if (!(this.plugin.getNumber().isDouble(args[1]))) {
+            if (!(NumberUtil.isDouble(args[1]))) {
                 player.sendMessage(Message.getMessageWithPrefix(Message.NO_NUMBER));
                 return true;
             }
@@ -60,9 +61,9 @@ public class PayCommand implements CommandExecutor, TabCompleter {
                     if (!(player == players)) {
                         this.plugin.getEconomy().depositPlayer(players, amount);
                        player.sendMessage(Message.getMessageWithPrefix(Message.PAY).replace("%Player%", players.getName()).replace("%Amount%",
-                               this.plugin.getNumber().formatNumber(amount)).replace(",", "."));
+                               NumberUtil.formatNumber(amount)).replace(",", "."));
                         players.sendMessage(Message.getMessageWithPrefix(Message.GET_MONEY).replace("%Player%",
-                                player.getName()).replace("%Amount%", this.plugin.getNumber().formatNumber(amount)).replace(",", "."));
+                                player.getName()).replace("%Amount%", NumberUtil.formatNumber(amount)).replace(",", "."));
                     }
                 }
                 return true;
@@ -78,9 +79,9 @@ public class PayCommand implements CommandExecutor, TabCompleter {
             this.plugin.getEconomy().withdrawPlayer(player, amount);
             this.plugin.getEconomy().depositPlayer(target, amount);
             player.sendMessage(Message.getMessageWithPrefix(Message.PAY).replace("%Player%", target.getName()).replace("%Amount%",
-                    this.plugin.getNumber().formatNumber(amount)).replace(",", "."));
+                    NumberUtil.formatNumber(amount)).replace(",", "."));
             target.sendMessage(Message.getMessageWithPrefix(Message.GET_MONEY).replace("%Player%", player.getName()).replace("%Amount%",
-                    this.plugin.getNumber().formatNumber(amount)).replace(",", "."));
+                    NumberUtil.formatNumber(amount)).replace(",", "."));
         } else {
             player.sendMessage(Message.PREFIX.getMessage() + "Use /pay <Player> <Amount>");
         }

@@ -2,6 +2,7 @@ package de.jonahd345.extendedeconomy.command;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Message;
+import de.jonahd345.extendedeconomy.util.NumberUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -35,12 +36,12 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
                     this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
                     sender.sendMessage(Message.getMessageWithPrefix(Message.MONEY_OTHER).replace("%Player%", offlinePlayer.getName()).replace("%Amount%",
-                            String.valueOf(this.plugin.getNumber().formatNumber(this.plugin.getEconomy().getBalance(offlinePlayer)))));
+                            NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(offlinePlayer))));
                     this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
                     return true;
                 }
                 sender.sendMessage(Message.getMessageWithPrefix(Message.MONEY_OTHER).replace("%Player%", target.getName()).replace("%Amount%",
-                        String.valueOf(this.plugin.getNumber().formatNumber(this.plugin.getEconomy().getBalance(target)))));
+                        NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(target))));
             } else {
                 sender.sendMessage(Message.PREFIX.getMessage() + "Use /economy <set|add|take|info> <Player> <Amount>");
             }
@@ -48,7 +49,7 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
             if (args[0].equalsIgnoreCase("set")) {
                 Player target = Bukkit.getPlayer(args[1]);
 
-                if (!(this.plugin.getNumber().isDouble(args[2]))) {
+                if (!(NumberUtil.isDouble(args[2]))) {
                     sender.sendMessage(Message.getMessageWithPrefix(Message.NO_NUMBER));
                     return true;
                 }
@@ -60,17 +61,17 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     this.plugin.getEconomy().depositPlayer(offlinePlayer, amount);
                     this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
                     sender.sendMessage(Message.getMessageWithPrefix(Message.ECO_SET).replace("%Player%",
-                            offlinePlayer.getName()).replace("%Amount%", this.plugin.getNumber().formatNumber(amount)));
+                            offlinePlayer.getName()).replace("%Amount%", NumberUtil.formatNumber(amount)));
                     return true;
                 }
                 this.plugin.getEconomy().withdrawPlayer(target, this.plugin.getEconomy().getBalance(target));
                 this.plugin.getEconomy().depositPlayer(target, amount);
                 sender.sendMessage(Message.getMessageWithPrefix(Message.ECO_SET).replace("%Player%", target.getName()).replace("%Amount%",
-                        this.plugin.getNumber().formatNumber(amount)));
+                        NumberUtil.formatNumber(amount)));
             } else if (args[0].equalsIgnoreCase("add")) {
                 Player target = Bukkit.getPlayer(args[1]);
 
-                if (!(this.plugin.getNumber().isDouble(args[2]))) {
+                if (!(NumberUtil.isDouble(args[2]))) {
                     sender.sendMessage(Message.getMessageWithPrefix(Message.NO_NUMBER));
                     return true;
                 }
@@ -81,16 +82,16 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     this.plugin.getEconomy().depositPlayer(offlinePlayer, amount);
                     this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
                     sender.sendMessage(Message.getMessageWithPrefix(Message.ECO_ADD).replace("%Player%",
-                            offlinePlayer.getName()).replace("%Amount%", this.plugin.getNumber().formatNumber(amount)));
+                            offlinePlayer.getName()).replace("%Amount%", NumberUtil.formatNumber(amount)));
                     return true;
                 }
                 this.plugin.getEconomy().depositPlayer(target, amount);
                 sender.sendMessage(Message.getMessageWithPrefix(Message.ECO_ADD).replace("%Player%", target.getName()).replace("%Amount%",
-                        this.plugin.getNumber().formatNumber(amount)));
+                        NumberUtil.formatNumber(amount)));
             } else if (args[0].equalsIgnoreCase("take")) {
                 Player target = Bukkit.getPlayer(args[1]);
 
-                if (!(this.plugin.getNumber().isDouble(args[2]))) {
+                if (!(NumberUtil.isDouble(args[2]))) {
                     sender.sendMessage(Message.getMessageWithPrefix(Message.NO_NUMBER));
                     return true;
                 }
@@ -105,7 +106,7 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     this.plugin.getEconomy().withdrawPlayer(offlinePlayer, amount);
                     this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
                     sender.sendMessage(Message.getMessageWithPrefix(Message.ECO_TAKE).replace("%Player%",
-                            offlinePlayer.getName()).replace("%Amount%", this.plugin.getNumber().formatNumber(amount)));
+                            offlinePlayer.getName()).replace("%Amount%", NumberUtil.formatNumber(amount)));
                     return true;
                 }
                 if (this.plugin.getEconomy().getBalance(target) - amount < 0) {
@@ -114,7 +115,7 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                 }
                 this.plugin.getEconomy().withdrawPlayer(target, amount);
                 sender.sendMessage(Message.getMessageWithPrefix(Message.ECO_TAKE).replace("%Player%", target.getName()).replace("%Amount%",
-                        this.plugin.getNumber().formatNumber(amount)));
+                        NumberUtil.formatNumber(amount)));
             } else {
                 sender.sendMessage(Message.PREFIX.getMessage() + "Use /economy <set|add|take|info> <Player> <Amount>");
             }

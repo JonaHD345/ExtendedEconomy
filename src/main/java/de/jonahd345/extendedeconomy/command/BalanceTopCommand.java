@@ -4,6 +4,7 @@ import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Leaderboard;
 import de.jonahd345.extendedeconomy.config.Message;
 import de.jonahd345.extendedeconomy.model.EconomyTopPlayer;
+import de.jonahd345.extendedeconomy.util.NumberUtil;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -29,17 +30,17 @@ public class BalanceTopCommand implements CommandExecutor {
             if (place < Leaderboard.SIZE.getValueAsInt()) {
                 if (place == 1) {
                     sender.sendMessage(Leaderboard.getLeaderboardWithMessagePrefix(Leaderboard.PLACE_ONE).replace("%Player%", topPlayer.getName()).replace("%Amount%",
-                                    this.plugin.getNumber().formatNumber(topPlayer.getCoins())));
+                                    NumberUtil.formatNumber(topPlayer.getCoins())));
                 } else if (place == 2) {
                     sender.sendMessage(Leaderboard.getLeaderboardWithMessagePrefix(Leaderboard.PLACE_TWO).replace("%Player%", topPlayer.getName()).replace("%Amount%",
-                                    this.plugin.getNumber().formatNumber(topPlayer.getCoins())));
+                                    NumberUtil.formatNumber(topPlayer.getCoins())));
 
                 } else if (place == 3) {
                     sender.sendMessage(Leaderboard.getLeaderboardWithMessagePrefix(Leaderboard.PLACE_THREE).replace("%Player%", topPlayer.getName()).replace("%Amount%",
-                                    this.plugin.getNumber().formatNumber(topPlayer.getCoins())));
+                                    NumberUtil.formatNumber(topPlayer.getCoins())));
                 } else {
                     sender.sendMessage(Leaderboard.getLeaderboardWithMessagePrefix(Leaderboard.PLACE_OTHER).replace("%Player%", topPlayer.getName()).replace("%Amount%",
-                                    this.plugin.getNumber().formatNumber(topPlayer.getCoins())).replace("%Place%",
+                                    NumberUtil.formatNumber(topPlayer.getCoins())).replace("%Place%",
                                     String.valueOf(place)));
                 }
                 place++;

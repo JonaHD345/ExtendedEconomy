@@ -3,18 +3,17 @@ package de.jonahd345.extendedeconomy.util;
 import java.text.DecimalFormat;
 
 public class NumberUtil {
-    private DecimalFormat format;
+    private static DecimalFormat format;
 
-    public NumberUtil() {
-        //this.format = new DecimalFormat("###,###,###,###,###,###,###,###,###");
-        this.format = new DecimalFormat("#,##0.00");
+    static {
+        format = new DecimalFormat("#,##0.00");
     }
 
-    public String formatNumber(Object number) {
-        return this.format.format(number); //.replace(",", ".");
+    public static String formatNumber(Object number) {
+        return format.format(number); //.replace(",", ".");
     }
 
-    public boolean isDouble(String argument) {
+    public static boolean isDouble(String argument) {
         try {
             Double.parseDouble(argument);
             return true;
@@ -23,7 +22,7 @@ public class NumberUtil {
         }
     }
 
-    public boolean isInt(String argument) {
+    public static boolean isInt(String argument) {
         try {
             Integer.parseInt(argument);
             return true;
