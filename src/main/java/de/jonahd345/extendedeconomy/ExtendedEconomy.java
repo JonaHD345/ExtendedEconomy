@@ -83,13 +83,13 @@ public final class ExtendedEconomy extends JavaPlugin {
 
         this.init();
 
-        // Keep TopPlayers up to date (every 30s)
+        // Keep TopPlayers up to date (every 5min)
         new BukkitRunnable() {
             @Override
             public void run() {
                 getEconomyService().loadTopPlayers();
             }
-        }.runTaskTimerAsynchronously(this, 600L, 600L);
+        }.runTaskTimerAsynchronously(this, 6000L, 6000L);
 
         // Push EconomyPlayers to the database (every 5min)
         new BukkitRunnable() {
