@@ -83,7 +83,7 @@ public class PayCommand implements CommandExecutor, TabCompleter {
             target.sendMessage(Message.getMessageWithPrefix(Message.GET_MONEY).replace("%Player%", player.getName()).replace("%Amount%",
                     NumberUtil.formatNumber(amount)).replace(",", "."));
         } else {
-            player.sendMessage(Message.PREFIX.getMessage() + "Use /pay <Player> <Amount>");
+            player.sendMessage(Message.PREFIX.getMessage() + "§7Use /pay <Player> <Amount>");
         }
         return false;
     }
