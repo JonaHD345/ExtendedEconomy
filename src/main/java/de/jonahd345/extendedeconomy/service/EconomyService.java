@@ -53,21 +53,17 @@ public class EconomyService {
                     }
                 }
             }
-            if (!(this.plugin.getEconomyPlayer().containsKey(uuid))) {
-                this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid));
-                this.plugin.getEconomyPlayer().get(uuid).setCoins(Config.STARTCOINS.getValueAsDouble());
-            }
         } else {
             if (this.yamlConfiguration.isSet(uuid.toString())) {
                 this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid, this.yamlConfiguration.getLong(uuid.toString())));
-            } else {
-                this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid));
-                this.plugin.getEconomyPlayer().get(uuid).setCoins(Config.STARTCOINS.getValueAsDouble());
             }
+        }
+        if (!(this.plugin.getEconomyPlayer().containsKey(uuid))) {
+            this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid, Config.STARTCOINS.getValueAsDouble()));
         }
     }
 
-    public void pushEconomyPlayer(UUID uuid) {
+    public void pushEconomyPlayer(UUID uuid, boolean removeFromList) {
         if (Config.MYSQL.getValueAsBoolean()) {
             PreparedStatement preparedStatement = null;
             delete(uuid);
@@ -76,7 +72,9 @@ public class EconomyService {
                 preparedStatement.setString(1, uuid.toString());
                 preparedStatement.setDouble(2, this.plugin.getEconomyPlayer().get(uuid).getCoins());
                 preparedStatement.executeUpdate();
-                this.plugin.getEconomyPlayer().remove(uuid);
+                if (removeFromList) {
+                    this.plugin.getEconomyPlayer().remove(uuid);
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
@@ -90,9 +88,15 @@ public class EconomyService {
             }
         } else {
             this.yamlConfiguration.set(uuid.toString(), this.plugin.getEconomyPlayer().get(uuid).getCoins());
-            this.plugin.getEconomyPlayer().remove(uuid);
+            if (removeFromList) {
+                this.plugin.getEconomyPlayer().remove(uuid);
+            }
             FileUtil.saveFile(this.yamlConfiguration, this.file);
         }
+    }
+
+    public void pushEconomyPlayer(UUID uuid) {
+        pushEconomyPlayer(uuid, false);
     }
 
     private void delete(UUID uuid) {
@@ -117,8 +121,9 @@ public class EconomyService {
     public void setupTopPlayers() {
         File fileTopPlayers = new File("plugins/" + this.plugin.getName() + "/leaderboard.yml");
         YamlConfiguration yamlConfigurationTopPlayers = YamlConfiguration.loadConfiguration(fileTopPlayers);
-        checkFileExists(fileTopPlayers, yamlConfigurationTopPlayers);
         List<EconomyTopPlayer> list = new ArrayList<>();
+
+        checkFileExists(fileTopPlayers, yamlConfigurationTopPlayers);
         if (yamlConfigurationTopPlayers.isSet("leaderboard")) {
             for (String economyTopPlayer : yamlConfigurationTopPlayers.getStringList("leaderboard")) {
                 list.add(this.plugin.getTopPlayerSerializer().getTopPlayer(economyTopPlayer));
@@ -131,6 +136,7 @@ public class EconomyService {
     public void loadTopPlayers() {
         List<EconomyTopPlayer> list = this.plugin.getEconomyTopPlayer();
         List<EconomyPlayer> economyPlayers = new ArrayList<>(this.plugin.getEconomyPlayer().values());
+
         for (EconomyPlayer economyPlayer : economyPlayers) {
             list.removeIf(economyTopPlayer -> economyTopPlayer.getUuid().equals(economyPlayer.getUuid()));
             double coins = economyPlayer.getCoins();

@@ -95,7 +95,7 @@ public final class ExtendedEconomy extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                Bukkit.getOnlinePlayers().forEach(p -> getEconomyService().pushEconomyPlayer(p.getUniqueId()));
+                Bukkit.getOnlinePlayers().forEach(p -> getEconomyService().pushEconomyPlayer(p.getUniqueId(), false));
             }
         }.runTaskTimerAsynchronously(this, 6000L, 6000L);
 
