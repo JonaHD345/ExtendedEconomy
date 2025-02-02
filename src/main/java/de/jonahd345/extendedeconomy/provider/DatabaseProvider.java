@@ -1,20 +1,29 @@
 package de.jonahd345.extendedeconomy.provider;
 
+import lombok.Getter;
+
 import java.sql.*;
 
+/**
+ * This class provides methods to manage the database connection and execute queries.
+ */
 public class DatabaseProvider {
     private String host;
-
     private String port;
-
     private String user;
-
     private String password;
-
     private String database;
-
+    @Getter
     private Connection connection;
 
+    /**
+     * Constructor to initialize the database connection parameters and connect to the database.
+     * @param host the database host
+     * @param port the database port
+     * @param user the database user
+     * @param password the database password
+     * @param database the database name
+     */
     public DatabaseProvider(String host, String port, String user, String password, String database) {
         this.host = host;
         this.port = port;
@@ -24,6 +33,9 @@ public class DatabaseProvider {
         this.connect();
     }
 
+    /**
+     * Establishes a connection to the database.
+     */
     public void connect() {
         if (!isConnected()) {
             try {
@@ -35,6 +47,9 @@ public class DatabaseProvider {
         }
     }
 
+    /**
+     * Disconnects from the database.
+     */
     public void disconnect() {
         if (this.connection == null)
             return;
@@ -46,6 +61,10 @@ public class DatabaseProvider {
         }
     }
 
+    /**
+     * Executes an update query (INSERT, UPDATE, DELETE).
+     * @param query the SQL query to execute
+     */
     public void update(String query) {
         try {
             Statement statement = this.connection.createStatement();
@@ -56,6 +75,11 @@ public class DatabaseProvider {
         }
     }
 
+    /**
+     * Executes a SELECT query and returns the result set.
+     * @param qry the SQL query to execute
+     * @return the result set of the query
+     */
     public ResultSet getResult(String qry) {
         if (isConnected()) {
             try {
@@ -67,6 +91,9 @@ public class DatabaseProvider {
         return null;
     }
 
+    /**
+     * Checks the database connection and reconnects if necessary.
+     */
     public void checkDatabase() {
         ResultSet rs = this.getResult("SELECT * FROM extendedeconomy_coins");
         if (!this.isConnected() || rs == null) {
@@ -74,10 +101,10 @@ public class DatabaseProvider {
         }
     }
 
-    public Connection getConnection() {
-        return this.connection;
-    }
-
+    /**
+     * Checks if the connection to the database is established.
+     * @return true if connected, false otherwise
+     */
     public boolean isConnected() {
         return this.getConnection() != null;
     }
