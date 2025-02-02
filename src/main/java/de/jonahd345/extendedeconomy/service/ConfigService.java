@@ -4,6 +4,7 @@ import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.config.Leaderboard;
 import de.jonahd345.extendedeconomy.config.Message;
+import de.jonahd345.extendedeconomy.config.MySql;
 import de.jonahd345.extendedeconomy.util.FileUtil;
 import de.jonahd345.extendedeconomy.util.StringUtil;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -23,7 +24,7 @@ public class ConfigService {
         this.plugin = plugin;
         this.file = new File("plugins/" + this.plugin.getName() + "/config.yml");
         this.yamlConfiguration = YamlConfiguration.loadConfiguration(this.file);
-        this.checkFileExists();
+        this.renameOldConfigIfExist();
     }
 
     public void loadConfig() {
@@ -33,13 +34,24 @@ public class ConfigService {
         // Config
         for (Config config : Config.values()) {
             if (!(this.file.exists()) || this.yamlConfiguration.getString("config." + config.name().toLowerCase()) == null) {
-                this.yamlConfiguration.set("config." + config.name().toLowerCase(), config.getValue().toString());
+                this.yamlConfiguration.set("config." + config.name().toLowerCase(), config.getDefaultValue().toString());
                 hasFileChanges = true;
                 // set Config's config to his default config and skip the next line, because by new mess yamlConfiguration.getString is null
                 config.setValue(StringUtil.translateColorCodes(config.getDefaultValue().toString()));
                 continue;
             }
             config.setValue(StringUtil.translateColorCodes(this.yamlConfiguration.getString("config." + config.name().toLowerCase())));
+        }
+        // MySql
+        for (MySql mySql : MySql.values()) {
+            if (!(this.file.exists()) || this.yamlConfiguration.getString("mysql." + mySql.name().toLowerCase()) == null) {
+                this.yamlConfiguration.set("mysql." + mySql.name().toLowerCase(), mySql.getDefaultValue().toString());
+                hasFileChanges = true;
+                // set Config's config to his default config and skip the next line, because by new mess yamlConfiguration.getString is null
+                mySql.setValue(StringUtil.translateColorCodes(mySql.getDefaultValue().toString()));
+                continue;
+            }
+            mySql.setValue(StringUtil.translateColorCodes(this.yamlConfiguration.getString("mysql." + mySql.name().toLowerCase())));
         }
         // Messages
         for (Message message : Message.values()) {
@@ -68,9 +80,9 @@ public class ConfigService {
         }
     }
 
-    private void checkFileExists() {
+    private void renameOldConfigIfExist() {
         // Rename old config (update from version < 2.1)
-        if (this.file.exists() // check if file exists without 2 random messages with the new path
+        if (this.file.exists() // check if file exists with 2 random messages with their new path
                 && this.yamlConfiguration.getString("messages.get_money") == null
                 && this.yamlConfiguration.getString("messages.eco_take") == null) {
             File oldFile = new File("plugins/" + this.plugin.getName() + "/configOld.yml");
