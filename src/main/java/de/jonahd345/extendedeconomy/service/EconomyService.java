@@ -151,7 +151,9 @@ public class EconomyService {
     public void loadTopPlayers() {
         File file = new File("plugins/" + this.plugin.getName() + "/leaderboard.json");
 
-        this.createFileIfNotExist(file);
+        if (!file.exists()) {
+            this.pushTopPlayers(); // Create the file if it doesn't exist
+        }
         try (FileReader reader = new FileReader(file)) {
             this.plugin.getEconomyTopPlayer().addAll(this.gson.fromJson(reader, this.listTypeTopPlayers));
         } catch (IOException e) {
