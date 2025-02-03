@@ -114,7 +114,7 @@ public class EconomyService {
     }
 
     private void convertPlayersYamlToSqlite() {
-        File filePlayers = new File("plugins/" + this.plugin.getName() + "/coins.yml");
+        File filePlayers = new File("plugins/" + this.plugin.getName() + "/coins/coins.yml");
         YamlConfiguration yamlConfigurationPlayers = YamlConfiguration.loadConfiguration(filePlayers);
 
         if (filePlayers.exists()) {
@@ -122,7 +122,7 @@ public class EconomyService {
                 this.plugin.getEconomyPlayer().put(UUID.fromString(uuid), new EconomyPlayer(UUID.fromString(uuid), yamlConfigurationPlayers.getDouble(uuid)));
                 this.pushEconomyPlayer(UUID.fromString(uuid), true);
             }
-            filePlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/coinsOld.yml"));
+            filePlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/coins/coinsOld.yml"));
         }
     }
 
