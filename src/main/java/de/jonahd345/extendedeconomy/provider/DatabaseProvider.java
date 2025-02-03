@@ -1,5 +1,6 @@
 package de.jonahd345.extendedeconomy.provider;
 
+import de.jonahd345.extendedeconomy.config.Config;
 import lombok.Getter;
 
 import java.sql.*;
@@ -13,6 +14,7 @@ public class DatabaseProvider {
     private String user;
     private String password;
     private String database;
+    private String file;
     @Getter
     private Connection connection;
 
@@ -33,14 +35,22 @@ public class DatabaseProvider {
         this.connect();
     }
 
+    public DatabaseProvider(String file) {
+        this.file = file;
+    }
+
     /**
      * Establishes a connection to the database.
      */
     public void connect() {
         if (!isConnected()) {
             try {
-                this.connection = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database +
-                        "?autoReconnect=true", this.user, this.password);
+                if (Config.MYSQL.getValueAsBoolean()) {
+                    this.connection = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database +
+                            "?autoReconnect=true", this.user, this.password);
+                } else {
+                    this.connection = DriverManager.getConnection("jdbc:sqlite:" + this.file);
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
