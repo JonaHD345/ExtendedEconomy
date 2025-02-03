@@ -108,9 +108,7 @@ public final class ExtendedEconomy extends JavaPlugin {
     public void onDisable() {
         Bukkit.getOnlinePlayers().forEach(player -> this.economyService.pushEconomyPlayer(player.getUniqueId()));
         this.economyService.pushTopPlayers();
-        if (Config.MYSQL.getValueAsBoolean()) {
-            this.databaseProvider.disconnect();
-        }
+        this.databaseProvider.disconnect();
     }
 
     private void init() {
