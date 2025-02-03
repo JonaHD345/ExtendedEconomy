@@ -12,6 +12,7 @@ import de.jonahd345.extendedeconomy.provider.EconomyProvider;
 import de.jonahd345.extendedeconomy.service.ConfigService;
 import de.jonahd345.extendedeconomy.service.EconomyService;
 import de.jonahd345.extendedeconomy.service.UpdateService;
+import de.jonahd345.extendedeconomy.util.FileUtil;
 import de.jonahd345.extendedeconomy.util.Metrics;
 import de.jonahd345.extendedeconomy.util.TopPlayerSerializer;
 import lombok.Getter;
@@ -74,6 +75,7 @@ public final class ExtendedEconomy extends JavaPlugin {
             this.databaseProvider = new DatabaseProvider(MySql.HOST.getValue(), MySql.PORT.getValue(), MySql.USER.getValue(), MySql.PASSWORD.getValue(), MySql.DATABASE.getValue());
             this.databaseProvider.update("RENAME TABLE IF EXISTS easyeconomy_coins TO extendedeconomy_coins;"); // Rename table from EasyEconomy to ExtendedEconomy
         } else {
+            FileUtil.createDirectory(new File("plugins/" + this.getName() + "/coins"));
             this.databaseProvider = new DatabaseProvider("plugins/" + this.getName() + "/coins/coins.db");
         }
         this.databaseProvider.update("CREATE TABLE IF NOT EXISTS extendedeconomy_coins(uuid VARCHAR(128) PRIMARY KEY, coins VARCHAR(128));");
