@@ -20,9 +20,7 @@ public class ConnectionListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        if (Config.MYSQL.getValueAsBoolean()) {
-            this.plugin.getDatabaseProvider().checkDatabase();
-        }
+        this.plugin.getDatabaseProvider().checkDatabase();
         this.plugin.getEconomyService().loadEconomyPlayer(player.getUniqueId());
         if (this.plugin.getUpdateService().isUpdateAvailable()) {
             if (player.hasPermission("extendedeconomy.admin")) {

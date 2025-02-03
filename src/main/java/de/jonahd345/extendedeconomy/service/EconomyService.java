@@ -6,7 +6,6 @@ import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
 import de.jonahd345.extendedeconomy.model.EconomyTopPlayer;
-import de.jonahd345.extendedeconomy.util.FileUtil;
 import de.jonahd345.extendedeconomy.util.UUIDFetcher;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -31,45 +30,34 @@ public class EconomyService {
 
     private Type listTypeTopPlayers;
 
-    private File file;
-
-    private YamlConfiguration yamlConfiguration;
-
     public EconomyService(ExtendedEconomy plugin) {
         this.plugin = plugin;
         this.gson = new Gson();
         this.listTypeTopPlayers = new TypeToken<List<EconomyTopPlayer>>() {}.getType();
-        this.file = new File("plugins/" + this.plugin.getName() + "/coins/coins.yml");
-        this.yamlConfiguration = YamlConfiguration.loadConfiguration(this.file);
-        this.checkFileExists(this.file, this.yamlConfiguration);
-        this.convertYamlToJson();
+        this.convertTopPlayersYamlToJson();
+        this.convertPlayersYamlToSqlite();
     }
 
     public void loadEconomyPlayer(UUID uuid) {
-        if (Config.MYSQL.getValueAsBoolean()) {
-            PreparedStatement preparedStatement = null;
-            ResultSet resultSet = null;
-            try {
-                preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;");
-                preparedStatement.setString(1, uuid.toString());
-                resultSet = preparedStatement.executeQuery();
-                while (resultSet.next()) {
-                    this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid, resultSet.getDouble("coins")));
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                if (preparedStatement != null) {
-                    try {
-                        preparedStatement.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;");
+            preparedStatement.setString(1, uuid.toString());
+            resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid, resultSet.getDouble("coins")));
             }
-        } else {
-            if (this.yamlConfiguration.isSet(uuid.toString())) {
-                this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid, this.yamlConfiguration.getLong(uuid.toString())));
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
         if (!(this.plugin.getEconomyPlayer().containsKey(uuid))) {
@@ -78,34 +66,27 @@ public class EconomyService {
     }
 
     public void pushEconomyPlayer(UUID uuid, boolean removeFromList) {
-        if (Config.MYSQL.getValueAsBoolean()) {
-            PreparedStatement preparedStatement = null;
-            delete(uuid);
-            try {
-                preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);");
-                preparedStatement.setString(1, uuid.toString());
-                preparedStatement.setDouble(2, this.plugin.getEconomyPlayer().get(uuid).getCoins());
-                preparedStatement.executeUpdate();
-                if (removeFromList) {
-                    this.plugin.getEconomyPlayer().remove(uuid);
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            } finally {
-                if (preparedStatement != null) {
-                    try {
-                        preparedStatement.close();
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        } else {
-            this.yamlConfiguration.set(uuid.toString(), this.plugin.getEconomyPlayer().get(uuid).getCoins());
+        PreparedStatement preparedStatement = null;
+
+        delete(uuid);
+        try {
+            preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);");
+            preparedStatement.setString(1, uuid.toString());
+            preparedStatement.setDouble(2, this.plugin.getEconomyPlayer().get(uuid).getCoins());
+            preparedStatement.executeUpdate();
             if (removeFromList) {
                 this.plugin.getEconomyPlayer().remove(uuid);
             }
-            FileUtil.saveFile(this.yamlConfiguration, this.file);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -132,11 +113,24 @@ public class EconomyService {
         }
     }
 
-    public void convertYamlToJson() {
+    private void convertPlayersYamlToSqlite() {
+        File filePlayers = new File("plugins/" + this.plugin.getName() + "/coins.yml");
+        YamlConfiguration yamlConfigurationPlayers = YamlConfiguration.loadConfiguration(filePlayers);
+
+        if (filePlayers.exists()) {
+            for (String uuid : yamlConfigurationPlayers.getKeys(false)) {
+                this.plugin.getEconomyPlayer().put(UUID.fromString(uuid), new EconomyPlayer(UUID.fromString(uuid), yamlConfigurationPlayers.getDouble(uuid)));
+                this.pushEconomyPlayer(UUID.fromString(uuid), true);
+            }
+            filePlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/coinsOld.yml"));
+        }
+    }
+
+    private void convertTopPlayersYamlToJson() {
         File fileTopPlayers = new File("plugins/" + this.plugin.getName() + "/leaderboard.yml");
 
         if (fileTopPlayers.exists()) {
-            loadTopPlayersFromYaml(fileTopPlayers);
+            this.loadTopPlayersFromYaml(fileTopPlayers);
             fileTopPlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/leaderboardOld.yml"));
         }
     }
@@ -155,7 +149,10 @@ public class EconomyService {
     }
 
     public void loadTopPlayers() {
-        try (FileReader reader = new FileReader("plugins/" + this.plugin.getName() + "/leaderboard.json")) {
+        File file = new File("plugins/" + this.plugin.getName() + "/leaderboard.json");
+
+        this.createFileIfNotExist(file);
+        try (FileReader reader = new FileReader(file)) {
             this.plugin.getEconomyTopPlayer().addAll(this.gson.fromJson(reader, this.listTypeTopPlayers));
         } catch (IOException e) {
             this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
@@ -177,17 +174,21 @@ public class EconomyService {
     }
 
     public void pushTopPlayers() {
-        try (FileWriter reader = new FileWriter("plugins/" + this.plugin.getName() + "/leaderboard.json")) {
-            this.gson.toJson(reader, this.listTypeTopPlayers);
+        try (FileWriter writer = new FileWriter("plugins/" + this.plugin.getName() + "/leaderboard.json")) {
+            this.gson.toJson(this.plugin.getEconomyTopPlayer(), this.listTypeTopPlayers, writer);
         } catch (IOException e) {
             this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
         this.plugin.getEconomyTopPlayer().clear();
     }
 
-    private void checkFileExists(File file, YamlConfiguration yamlConfiguration) {
+    private void createFileIfNotExist(File file) {
         if (!(file.exists())) {
-            FileUtil.saveFile(yamlConfiguration, file);
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
+            }
         }
     }
 }
