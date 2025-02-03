@@ -19,4 +19,19 @@ public class FileUtil {
             e.printStackTrace();
         }
     }
+
+    /**
+     * Creates the specified file if it does not exist.
+     *
+     * @param file the file to create
+     */
+    public static void createFile(File file) {
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
