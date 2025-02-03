@@ -45,6 +45,7 @@ public final class ExtendedEconomy extends JavaPlugin {
 
         if (!(setupEconomy())) {
             getLogger().info("No Vault was found! PLUGIN DISABLED!");
+            getServer().getPluginManager().disablePlugin(this);
             return;
         }
         if (!(setupPlaceholderAPI())) {
