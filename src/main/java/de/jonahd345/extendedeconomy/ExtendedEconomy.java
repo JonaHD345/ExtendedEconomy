@@ -78,7 +78,7 @@ public final class ExtendedEconomy extends JavaPlugin {
         this.topPlayerSerializer = new TopPlayerSerializer();
 
         this.economyService = new EconomyService(this);
-        this.economyService.setupTopPlayers();
+        this.economyService.loadTopPlayers();
 
 
         this.init();
@@ -87,7 +87,7 @@ public final class ExtendedEconomy extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                getEconomyService().loadTopPlayers();
+                getEconomyService().refreshTopPlayers();
             }
         }.runTaskTimerAsynchronously(this, 6000L, 6000L);
 

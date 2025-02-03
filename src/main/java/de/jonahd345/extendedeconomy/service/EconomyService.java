@@ -1,5 +1,7 @@
 package de.jonahd345.extendedeconomy.service;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
@@ -9,16 +11,25 @@ import de.jonahd345.extendedeconomy.util.UUIDFetcher;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class EconomyService {
     private ExtendedEconomy plugin;
+
+    private Gson gson;
+
+    private Type listTypeTopPlayers;
 
     private File file;
 
@@ -26,9 +37,12 @@ public class EconomyService {
 
     public EconomyService(ExtendedEconomy plugin) {
         this.plugin = plugin;
+        this.gson = new Gson();
+        this.listTypeTopPlayers = new TypeToken<List<EconomyTopPlayer>>() {}.getType();
         this.file = new File("plugins/" + this.plugin.getName() + "/coins/coins.yml");
         this.yamlConfiguration = YamlConfiguration.loadConfiguration(this.file);
         this.checkFileExists(this.file, this.yamlConfiguration);
+        this.convertYamlToJson();
     }
 
     public void loadEconomyPlayer(UUID uuid) {
@@ -118,12 +132,19 @@ public class EconomyService {
         }
     }
 
-    public void setupTopPlayers() {
+    public void convertYamlToJson() {
         File fileTopPlayers = new File("plugins/" + this.plugin.getName() + "/leaderboard.yml");
-        YamlConfiguration yamlConfigurationTopPlayers = YamlConfiguration.loadConfiguration(fileTopPlayers);
+
+        if (fileTopPlayers.exists()) {
+            loadTopPlayersFromYaml(fileTopPlayers);
+            fileTopPlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/leaderboardOld.yml"));
+        }
+    }
+
+    private void loadTopPlayersFromYaml(File file) {
+        YamlConfiguration yamlConfigurationTopPlayers = YamlConfiguration.loadConfiguration(file);
         List<EconomyTopPlayer> list = new ArrayList<>();
 
-        checkFileExists(fileTopPlayers, yamlConfigurationTopPlayers);
         if (yamlConfigurationTopPlayers.isSet("leaderboard")) {
             for (String economyTopPlayer : yamlConfigurationTopPlayers.getStringList("leaderboard")) {
                 list.add(this.plugin.getTopPlayerSerializer().getTopPlayer(economyTopPlayer));
@@ -134,6 +155,14 @@ public class EconomyService {
     }
 
     public void loadTopPlayers() {
+        try (FileReader reader = new FileReader("plugins/" + this.plugin.getName() + "/leaderboard.json")) {
+            this.plugin.getEconomyTopPlayer().addAll(this.gson.fromJson(reader, this.listTypeTopPlayers));
+        } catch (IOException e) {
+            this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
+        }
+    }
+
+    public void refreshTopPlayers() {
         List<EconomyTopPlayer> list = this.plugin.getEconomyTopPlayer();
         List<EconomyPlayer> economyPlayers = new ArrayList<>(this.plugin.getEconomyPlayer().values());
 
@@ -148,15 +177,11 @@ public class EconomyService {
     }
 
     public void pushTopPlayers() {
-        File fileTopPlayers = new File("plugins/" + this.plugin.getName() + "/leaderboard.yml");
-        YamlConfiguration yamlConfigurationTopPlayers = YamlConfiguration.loadConfiguration(fileTopPlayers);
-        List<String> list = new ArrayList<>();
-
-        for (EconomyTopPlayer economyTopPlayer : this.plugin.getEconomyTopPlayer()) {
-            list.add(this.plugin.getTopPlayerSerializer().setTopPlayer(economyTopPlayer));
+        try (FileWriter reader = new FileWriter("plugins/" + this.plugin.getName() + "/leaderboard.json")) {
+            this.gson.toJson(reader, this.listTypeTopPlayers);
+        } catch (IOException e) {
+            this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
-        yamlConfigurationTopPlayers.set("leaderboard", list);
-        FileUtil.saveFile(yamlConfigurationTopPlayers, fileTopPlayers);
         this.plugin.getEconomyTopPlayer().clear();
     }
 
