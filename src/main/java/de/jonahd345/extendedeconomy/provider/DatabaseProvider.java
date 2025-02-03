@@ -37,6 +37,7 @@ public class DatabaseProvider {
 
     public DatabaseProvider(String file) {
         this.file = file;
+        this.connect();
     }
 
     /**
