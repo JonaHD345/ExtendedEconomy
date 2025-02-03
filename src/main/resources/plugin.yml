@@ -14,15 +14,42 @@ loadbefore:
 commands:
   extendedeconomy:
     aliases: [ee]
+    permission: extendedeconomy.admin
     description: Give information about the plugin.
   economy:
     aliases: [eco]
+    permission: extendedeconomy.command.economy
     description: That is the admin command for manage users balance.
   money:
     aliases: [coins, balance]
+    permission: extendedeconomy.command.money
     description: Give the player his balance.
   pay:
+    permission: extendedeconomy.command.pay
     description: Pay other players your money.
   balancetop:
     aliases: [baltop, leaderboard]
+    permission: extendedeconomy.command.balancetop
     description: List the richest player on the server.
+
+permissions:
+  extendedeconomy.admin:
+        description: Give the player all permissions.
+        default: op
+        children:
+          extendedeconomy.command.economy: true
+          extendedeconomy.command.money: true
+          extendedeconomy.command.pay: true
+          extendedeconomy.command.balancetop: true
+  extendedeconomy.command.economy:
+        description: Give the player the permission to use the economy command.
+        default: false
+  extendedeconomy.command.money:
+        description: Give the player the permission to use the money command.
+        default: false
+  extendedeconomy.command.pay:
+        description: Give the player the permission to use the pay command.
+        default: false
+  extendedeconomy.command.balancetop:
+        description: Give the player the permission to use the balancetop command.
+        default: false
