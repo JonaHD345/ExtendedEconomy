@@ -29,6 +29,6 @@ public class UUIDFetcher {
         if (offlinePlayer.hasPlayedBefore()) {
             return offlinePlayer.getName();
         }
-        return null;
+        return "Unknown";
     }
 }
