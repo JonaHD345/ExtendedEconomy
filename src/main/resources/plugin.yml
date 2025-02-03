@@ -3,7 +3,7 @@ version: 3.0
 main: de.jonahd345.extendedeconomy.ExtendedEconomy
 api-version: 1.18
 author: JonaHD345
-description: a extended system
+description: a extended economy system
 website: https://jonahd345.de
 softdepend:
   - Vault
