@@ -33,4 +33,9 @@ public enum Message {
     public static String getMessageWithPrefix(Message message) {
         return PREFIX.getMessage() + message.getMessage();
     }
+
+    @Override
+    public String toString() {
+        return this.message;
+    }
 }

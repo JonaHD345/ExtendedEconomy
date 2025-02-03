@@ -35,4 +35,9 @@ public enum Leaderboard {
     public static String getLeaderboardWithMessagePrefix(Leaderboard leaderboard) {
         return Message.PREFIX.getMessage() + leaderboard.getValue();
     }
+
+    @Override
+    public String toString() {
+        return this.value.toString();
+    }
 }
