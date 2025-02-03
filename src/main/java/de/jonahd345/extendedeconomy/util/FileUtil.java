@@ -34,4 +34,19 @@ public class FileUtil {
             }
         }
     }
+
+    /**
+     * Creates the specified directory if it does not exist.
+     *
+     * @param file the directory to create
+     */
+    public static void createDirectory(File file) {
+        if (!file.exists()) {
+            try {
+                file.mkdir();
+            } catch (SecurityException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
