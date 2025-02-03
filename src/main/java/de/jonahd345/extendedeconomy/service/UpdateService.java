@@ -2,6 +2,7 @@ package de.jonahd345.extendedeconomy.service;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Message;
+import lombok.Getter;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -14,8 +15,10 @@ public class UpdateService {
 
     private String  pluginVersion;
 
+    @Getter
     private String spigotVersion;
 
+    @Getter
     private boolean updateAvailable;
 
     public UpdateService(ExtendedEconomy plugin) {
@@ -60,13 +63,5 @@ public class UpdateService {
 
     private int[] toReadable(String version) {
         return Arrays.stream(version.split("\\.")).mapToInt(Integer::parseInt).toArray();
-    }
-
-    public String getSpigotVersion() {
-        return spigotVersion;
-    }
-
-    public boolean isUpdateAvailable() {
-        return updateAvailable;
     }
 }
