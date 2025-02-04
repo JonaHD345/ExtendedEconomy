@@ -3,6 +3,7 @@ package de.jonahd345.extendedeconomy.command;
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Message;
 import de.jonahd345.extendedeconomy.util.NumberUtil;
+import de.jonahd345.extendedeconomy.util.StringUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class PayCommand implements CommandExecutor, TabCompleter {
     private ExtendedEconomy plugin;
@@ -60,10 +62,10 @@ public class PayCommand implements CommandExecutor, TabCompleter {
                 for (Player players : Bukkit.getOnlinePlayers()) {
                     if (!(player == players)) {
                         this.plugin.getEconomy().depositPlayer(players, amount);
-                       player.sendMessage(Message.getMessageWithPrefix(Message.PAY).replace("%Player%", players.getName()).replace("%Amount%",
-                               NumberUtil.formatNumber(amount)).replace(",", "."));
-                        players.sendMessage(Message.getMessageWithPrefix(Message.GET_MONEY).replace("%Player%",
-                                player.getName()).replace("%Amount%", NumberUtil.formatNumber(amount)).replace(",", "."));
+                        player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.PAY),
+                                Map.of("%Player%", players.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
+                        players.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.GET_MONEY),
+                                Map.of("%Player%", player.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
                     }
                 }
                 return true;
@@ -78,10 +80,10 @@ public class PayCommand implements CommandExecutor, TabCompleter {
             }
             this.plugin.getEconomy().withdrawPlayer(player, amount);
             this.plugin.getEconomy().depositPlayer(target, amount);
-            player.sendMessage(Message.getMessageWithPrefix(Message.PAY).replace("%Player%", target.getName()).replace("%Amount%",
-                    NumberUtil.formatNumber(amount)).replace(",", "."));
-            target.sendMessage(Message.getMessageWithPrefix(Message.GET_MONEY).replace("%Player%", player.getName()).replace("%Amount%",
-                    NumberUtil.formatNumber(amount)).replace(",", "."));
+            player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.PAY),
+                    Map.of("%Player%", target.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
+            target.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.GET_MONEY),
+                    Map.of("%Player%", player.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
         } else {
             player.sendMessage(Message.PREFIX.getMessage() + "§7Use /pay <Player> <Amount>");
         }
@@ -91,6 +93,7 @@ public class PayCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         ArrayList<String> subcommand = new ArrayList<>();
+
         if (sender.hasPermission("extendedeconomy.command.pay") || sender.hasPermission("extendedeconomy.admin")) {
             if (args.length == 1) {
                 subcommand.add("*");
@@ -101,13 +104,13 @@ public class PayCommand implements CommandExecutor, TabCompleter {
         }
         ArrayList<String> cl = new ArrayList<>();
         String currentarg = args[args.length - 1].toLowerCase();
+
         for(String s1 : subcommand) {
             String s2 = s1.toLowerCase();
             if(s2.startsWith(currentarg)) {
                 cl.add(s1);
             }
         }
-
         return cl;
     }
 }

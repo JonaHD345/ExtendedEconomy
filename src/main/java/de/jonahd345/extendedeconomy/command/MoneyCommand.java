@@ -3,12 +3,15 @@ package de.jonahd345.extendedeconomy.command;
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Message;
 import de.jonahd345.extendedeconomy.util.NumberUtil;
+import de.jonahd345.extendedeconomy.util.StringUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.util.Map;
 
 public class MoneyCommand implements CommandExecutor {
     private ExtendedEconomy plugin;
@@ -30,8 +33,8 @@ public class MoneyCommand implements CommandExecutor {
             return true;
         }
         if (args.length == 0) {
-            player.sendMessage(Message.getMessageWithPrefix(Message.MONEY).replace("%Amount%",
-                    NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(player))));
+            player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY),
+                    Map.of("%Amount%", NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(player)))));
         } else if (args.length == 1) {
             if (!(player.hasPermission("extendedeconomy.command.money.other"))) {
                 player.chat("/money");
@@ -42,13 +45,13 @@ public class MoneyCommand implements CommandExecutor {
             if (target == null) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
                 this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
-                player.sendMessage(Message.getMessageWithPrefix(Message.MONEY_OTHER).replace("%Player%",
-                        offlinePlayer.getName()).replace("%Amount%", NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(offlinePlayer))));
+                player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
+                        Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(offlinePlayer)))));
                 this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
                 return true;
             }
-            player.sendMessage(Message.getMessageWithPrefix(Message.MONEY_OTHER).replace("%Player%", target.getName()).replace("%Amount%",
-                    NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(target))));
+            player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
+                    Map.of("%Player%", target.getName(), "%Amount%", NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(target)))));
         }
         return false;
     }
