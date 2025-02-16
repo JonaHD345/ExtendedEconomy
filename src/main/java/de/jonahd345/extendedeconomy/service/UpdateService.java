@@ -1,6 +1,7 @@
 package de.jonahd345.extendedeconomy.service;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
+import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.config.Message;
 import lombok.Getter;
 
@@ -40,7 +41,7 @@ public class UpdateService {
 
         if (this.spigotVersion != null && !this.spigotVersion.isEmpty()) {
             this.updateAvailable = this.spigotIsNewer();
-            if (this.updateAvailable) {
+            if (this.updateAvailable && Config.UPDATE_NOTIFICATION.getValueAsBoolean()) {
                 this.plugin.getLogger().info(Message.PREFIX.getMessage() + "§7The new Version from ExtendedEconomy v" +
                         this.spigotVersion + " is available at: https://www.spigotmc.org/resources/extendedeconomy.106888/");
             }

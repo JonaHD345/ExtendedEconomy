@@ -6,7 +6,8 @@ import lombok.Setter;
 @Getter
 public enum Config {
     MYSQL(false),
-    STARTCOINS(1000);
+    STARTCOINS(1000),
+    UPDATE_NOTIFICATION(true);
 
     private final Object defaultValue;
     @Setter
