@@ -6,7 +6,7 @@
 
     <groupId>de.jonahd345</groupId>
     <artifactId>extendedeconomy</artifactId>
-    <version>3.0</version>
+    <version>3.1</version>
     <packaging>jar</packaging>
 
     <name>ExtendedEconomy</name>
@@ -90,11 +90,6 @@
             <artifactId>lombok</artifactId>
             <version>1.18.36</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.xerial</groupId>
-            <artifactId>sqlite-jdbc</artifactId>
-            <version>3.42.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
