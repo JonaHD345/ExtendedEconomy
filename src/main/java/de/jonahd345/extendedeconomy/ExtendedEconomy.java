@@ -2,7 +2,7 @@ package de.jonahd345.extendedeconomy;
 
 import de.jonahd345.extendedeconomy.command.*;
 import de.jonahd345.extendedeconomy.config.Config;
-import de.jonahd345.extendedeconomy.config.ConfigType;
+import de.jonahd345.extendedeconomy.config.MySql;
 import de.jonahd345.extendedeconomy.listener.ConnectionListener;
 import de.jonahd345.extendedeconomy.manager.ExpansionManager;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
@@ -12,9 +12,10 @@ import de.jonahd345.extendedeconomy.provider.EconomyProvider;
 import de.jonahd345.extendedeconomy.service.ConfigService;
 import de.jonahd345.extendedeconomy.service.EconomyService;
 import de.jonahd345.extendedeconomy.service.UpdateService;
+import de.jonahd345.extendedeconomy.util.FileUtil;
 import de.jonahd345.extendedeconomy.util.Metrics;
-import de.jonahd345.extendedeconomy.util.Number;
 import de.jonahd345.extendedeconomy.util.TopPlayerSerializer;
+import lombok.Getter;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
@@ -26,27 +27,17 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.io.File;
 import java.util.*;
 
+@Getter
 public final class ExtendedEconomy extends JavaPlugin {
     private Metrics metrics;
-
-    private Economy economy;
-
     private ExpansionManager expansionManager;
-
+    private Economy economy;
     private UpdateService updateService;
-
     private Map<UUID, EconomyPlayer> economyPlayer;
-
     private List<EconomyTopPlayer> economyTopPlayer;
-
     private ConfigService configService;
-
     private DatabaseProvider databaseProvider;
-
     private EconomyService economyService;
-
-    private Number number;
-
     private TopPlayerSerializer topPlayerSerializer;
 
     @Override
@@ -55,12 +46,14 @@ public final class ExtendedEconomy extends JavaPlugin {
 
         if (!(setupEconomy())) {
             getLogger().info("No Vault was found! PLUGIN DISABLED!");
+            getServer().getPluginManager().disablePlugin(this);
             return;
         }
         if (!(setupPlaceholderAPI())) {
             getLogger().info("No PlaceholderAPI was found!");
         }
 
+        // Rename the old directory to the new one (EasyEconomy -> ExtendedEconomy)
         File directory = new File("plugins/EasyEconomy");
         if (directory.exists() && directory.isDirectory()) {
             File newDirectory = new File(directory.getParent() + File.separator + this.getName());
@@ -76,29 +69,40 @@ public final class ExtendedEconomy extends JavaPlugin {
         this.economyTopPlayer = new ArrayList<>();
 
         this.configService = new ConfigService(this);
-        this.configService.loadCache();
+        this.configService.loadConfig();
 
-        if (ConfigService.MYSQL) {
-            this.databaseProvider = new DatabaseProvider(this.configService.getMessages().get("mysql.host"), this.configService.getMessages().get("mysql.port"),
-                    this.configService.getMessages().get("mysql.user"), this.configService.getMessages().get("mysql.password"), this.configService.getMessages().get("mysql.database"));
-            this.databaseProvider.update("RENAME TABLE IF EXISTS easyeconomy_coins TO extendedeconomy_coins;");
-            this.databaseProvider.update("CREATE TABLE IF NOT EXISTS extendedeconomy_coins(uuid VARCHAR(128), coins VARCHAR(128));");
+        if (Config.MYSQL.getValueAsBoolean()) {
+            this.databaseProvider = new DatabaseProvider(MySql.HOST.getValue(), MySql.PORT.getValue(), MySql.USER.getValue(), MySql.PASSWORD.getValue(), MySql.DATABASE.getValue());
+            this.databaseProvider.update("RENAME TABLE IF EXISTS easyeconomy_coins TO extendedeconomy_coins;"); // Rename table from EasyEconomy to ExtendedEconomy
+        } else {
+            FileUtil.createDirectory(new File("plugins/" + this.getName() + "/coins"));
+            this.databaseProvider = new DatabaseProvider("plugins/" + this.getName() + "/coins/coins.db");
         }
+        this.databaseProvider.update("CREATE TABLE IF NOT EXISTS extendedeconomy_coins(uuid VARCHAR(128) PRIMARY KEY, coins VARCHAR(128));");
 
         this.topPlayerSerializer = new TopPlayerSerializer();
 
         this.economyService = new EconomyService(this);
-        this.economyService.setupTopPlayers();
+        this.economyService.loadTopPlayers();
 
-        this.number = new Number();
+
         this.init();
 
+        // Keep TopPlayers up to date (every 5min)
         new BukkitRunnable() {
             @Override
             public void run() {
-                getEconomyService().loadTopPlayers();
+                getEconomyService().refreshTopPlayers();
             }
-        }.runTaskTimerAsynchronously(this, 600L, 600L);
+        }.runTaskTimerAsynchronously(this, 6000L, 6000L);
+
+        // Push EconomyPlayers to the database (every 5min)
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Bukkit.getOnlinePlayers().forEach(p -> getEconomyService().pushEconomyPlayer(p.getUniqueId(), false));
+            }
+        }.runTaskTimerAsynchronously(this, 6000L, 6000L);
 
         getLogger().info("Plugin enabled!");
     }
@@ -107,14 +111,16 @@ public final class ExtendedEconomy extends JavaPlugin {
     public void onDisable() {
         Bukkit.getOnlinePlayers().forEach(player -> this.economyService.pushEconomyPlayer(player.getUniqueId()));
         this.economyService.pushTopPlayers();
-        if (ConfigService.MYSQL) {
-            this.databaseProvider.disconnect();
-        }
+        this.databaseProvider.disconnect();
     }
 
-    public void init() {
+    private void init() {
         PluginManager pluginManager = getServer().getPluginManager();
+
+        // Events
         pluginManager.registerEvents(new ConnectionListener(this), this);
+
+        // Commands
         getCommand("extendedeconomy").setExecutor(new ExtendedEconomyCommand(this));
         getCommand("economy").setExecutor(new EconomyCommand(this));
         getCommand("money").setExecutor(new MoneyCommand(this));
@@ -147,41 +153,5 @@ public final class ExtendedEconomy extends JavaPlugin {
 
     public static ExtendedEconomy getInstance() {
         return getPlugin(ExtendedEconomy.class);
-    }
-
-    public Economy getEconomy() {
-        return economy;
-    }
-
-    public UpdateService getUpdateService() {
-        return updateService;
-    }
-
-    public Map<UUID, EconomyPlayer> getEconomyPlayer() {
-        return economyPlayer;
-    }
-
-    public List<EconomyTopPlayer> getEconomyTopPlayer() {
-        return economyTopPlayer;
-    }
-
-    public ConfigService getCacheService() {
-        return configService;
-    }
-
-    public DatabaseProvider getDatabaseProvider() {
-        return databaseProvider;
-    }
-
-    public EconomyService getEconomyService() {
-        return economyService;
-    }
-
-    public Number getNumber() {
-        return number;
-    }
-
-    public TopPlayerSerializer getTopPlayerSerializer() {
-        return topPlayerSerializer;
     }
 }

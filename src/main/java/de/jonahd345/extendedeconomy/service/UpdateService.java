@@ -1,6 +1,9 @@
 package de.jonahd345.extendedeconomy.service;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
+import de.jonahd345.extendedeconomy.config.Config;
+import de.jonahd345.extendedeconomy.config.Message;
+import lombok.Getter;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -13,8 +16,10 @@ public class UpdateService {
 
     private String  pluginVersion;
 
+    @Getter
     private String spigotVersion;
 
+    @Getter
     private boolean updateAvailable;
 
     public UpdateService(ExtendedEconomy plugin) {
@@ -30,14 +35,14 @@ public class UpdateService {
             con.setRequestMethod("GET");
             this.spigotVersion = new BufferedReader(new InputStreamReader(con.getInputStream())).readLine();
         } catch (Exception e) {
-            this.plugin.getLogger().info(this.plugin.getCacheService().getMessages().get("messages.prefix") + "Failed to check for updates on spigot.");
+            this.plugin.getLogger().info(Message.PREFIX.getMessage() + "§7Failed to check for updates on spigot.");
             return;
         }
 
         if (this.spigotVersion != null && !this.spigotVersion.isEmpty()) {
             this.updateAvailable = this.spigotIsNewer();
-            if (this.updateAvailable) {
-                this.plugin.getLogger().info("The new Version from ExtendedEconomy v" +
+            if (this.updateAvailable && Config.UPDATE_NOTIFICATION.getValueAsBoolean()) {
+                this.plugin.getLogger().info(Message.PREFIX.getMessage() + "§7The new Version from ExtendedEconomy v" +
                         this.spigotVersion + " is available at: https://www.spigotmc.org/resources/extendedeconomy.106888/");
             }
         }
@@ -59,13 +64,5 @@ public class UpdateService {
 
     private int[] toReadable(String version) {
         return Arrays.stream(version.split("\\.")).mapToInt(Integer::parseInt).toArray();
-    }
-
-    public String getSpigotVersion() {
-        return spigotVersion;
-    }
-
-    public boolean isUpdateAvailable() {
-        return updateAvailable;
     }
 }

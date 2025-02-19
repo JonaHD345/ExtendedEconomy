@@ -5,9 +5,9 @@ import lombok.Setter;
 
 @Getter
 public enum Config {
-    // Config
     MYSQL(false),
-    STARTCOINS(1000);
+    STARTCOINS(1000),
+    UPDATE_NOTIFICATION(true);
 
     private final Object defaultValue;
     @Setter
@@ -25,11 +25,11 @@ public enum Config {
         return Boolean.valueOf(this.value.toString());
     }
 
-    public Integer getDefaultValueAsInt() {
-        return Integer.valueOf(this.defaultValue.toString());
+    public Double getDefaultValueAsDouble() {
+        return Double.valueOf(this.defaultValue.toString());
     }
 
-    public Integer getValueAsInt() {
-        try { return Integer.valueOf(this.value.toString()); } catch (NumberFormatException e) { return this.getDefaultValueAsInt(); }
+    public Double getValueAsDouble() {
+        try { return Double.valueOf(this.value.toString()); } catch (NumberFormatException e) { return this.getDefaultValueAsDouble(); }
     }
 }
