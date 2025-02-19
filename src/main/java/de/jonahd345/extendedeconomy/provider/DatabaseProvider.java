@@ -46,12 +46,8 @@ public class DatabaseProvider {
     public void connect() {
         if (!isConnected()) {
             try {
-                if (Config.MYSQL.getValueAsBoolean()) {
-                    this.connection = DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database +
-                            "?autoReconnect=true", this.user, this.password);
-                } else {
-                    this.connection = DriverManager.getConnection("jdbc:sqlite:" + this.file);
-                }
+                this.connection = DriverManager.getConnection(Config.MYSQL.getValueAsBoolean() ? "jdbc:sqlite:" + this.file :
+                        "jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + "?autoReconnect=true", this.user, this.password);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
