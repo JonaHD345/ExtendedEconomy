@@ -37,7 +37,7 @@ public class ConfigService {
                 this.yamlConfiguration.set("config." + config.name().toLowerCase(), config.getDefaultValue().toString());
                 hasFileChanges = true;
                 // set Config's config to his default config and skip the next line, because by new mess yamlConfiguration.getString is null
-                config.setValue(StringUtil.translateColorCodes(config.getDefaultValue().toString()));
+                config.setValue(config.getDefaultValue());
                 continue;
             }
             config.setValue(StringUtil.translateColorCodes(this.yamlConfiguration.getString("config." + config.name().toLowerCase())));
