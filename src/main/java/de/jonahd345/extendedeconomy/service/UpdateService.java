@@ -3,6 +3,8 @@ package de.jonahd345.extendedeconomy.service;
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.config.Message;
+import de.jonahd345.xenfororesourcemanagerapi.XenforoResourceManagerAPI;
+import de.jonahd345.xenfororesourcemanagerapi.model.Resource;
 import lombok.Getter;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -14,6 +16,8 @@ import java.util.Arrays;
 public class UpdateService {
     private ExtendedEconomy plugin;
 
+    private XenforoResourceManagerAPI xenforoResourceManagerAPI;
+
     private String  pluginVersion;
 
     @Getter
@@ -24,21 +28,20 @@ public class UpdateService {
 
     public UpdateService(ExtendedEconomy plugin) {
         this.plugin = plugin;
+        this.xenforoResourceManagerAPI = new XenforoResourceManagerAPI();
         this.pluginVersion = this.plugin.getDescription().getVersion();
         this.updateAvailable = false;
         this.checkForUpdate();
     }
 
     public void checkForUpdate() {
-        try {
-            HttpsURLConnection con = (HttpsURLConnection) new URL("https://api.spigotmc.org/legacy/update.php?resource=106888").openConnection();
-            con.setRequestMethod("GET");
-            this.spigotVersion = new BufferedReader(new InputStreamReader(con.getInputStream())).readLine();
-        } catch (Exception e) {
-            this.plugin.getLogger().info(Message.PREFIX.getMessage() + "§7Failed to check for updates on spigot.");
-            return;
-        }
+        Resource resource = this.xenforoResourceManagerAPI.getResource(106888);
 
+        if (resource != null) {
+            this.spigotVersion = resource.getCurrentVersion();
+        } else {
+            this.spigotVersion = this.pluginVersion;
+        }
         if (this.spigotVersion != null && !this.spigotVersion.isEmpty()) {
             this.updateAvailable = this.spigotIsNewer();
             if (this.updateAvailable && Config.UPDATE_NOTIFICATION.getValueAsBoolean()) {
