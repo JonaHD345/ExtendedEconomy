@@ -65,7 +65,7 @@ public class EconomyService {
         }
     }
 
-    public void pushEconomyPlayer(UUID uuid, boolean removeFromList) {
+    public void pushEconomyPlayer(UUID uuid, boolean removeFromMap) {
         PreparedStatement preparedStatement = null;
 
         delete(uuid);
@@ -74,7 +74,7 @@ public class EconomyService {
             preparedStatement.setString(1, uuid.toString());
             preparedStatement.setDouble(2, this.plugin.getEconomyPlayer().get(uuid).getCoins());
             preparedStatement.executeUpdate();
-            if (removeFromList) {
+            if (removeFromMap) {
                 this.plugin.getEconomyPlayer().remove(uuid);
             }
         } catch (SQLException e) {
@@ -91,7 +91,7 @@ public class EconomyService {
     }
 
     public void pushEconomyPlayer(UUID uuid) {
-        pushEconomyPlayer(uuid, false);
+        pushEconomyPlayer(uuid, true);
     }
 
     private void delete(UUID uuid) {
