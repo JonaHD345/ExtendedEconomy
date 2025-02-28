@@ -66,7 +66,7 @@ public class EconomyService {
         }
     }
 
-    public void pushEconomyPlayer(UUID uuid) {
+    public void pushEconomyPlayer(UUID uuid, boolean removeFromList) {
         if (CacheService.MYSQL) {
             PreparedStatement preparedStatement = null;
             delete(uuid);
@@ -75,7 +75,9 @@ public class EconomyService {
                 preparedStatement.setString(1, uuid.toString());
                 preparedStatement.setDouble(2, this.plugin.getEconomyPlayer().get(uuid).getCoins());
                 preparedStatement.executeUpdate();
-                this.plugin.getEconomyPlayer().remove(uuid);
+                if (removeFromList) {
+                    this.plugin.getEconomyPlayer().remove(uuid);
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
@@ -89,9 +91,15 @@ public class EconomyService {
             }
         } else {
             this.yamlConfiguration.set(uuid.toString(), this.plugin.getEconomyPlayer().get(uuid).getCoins());
-            this.plugin.getEconomyPlayer().remove(uuid);
+            if (removeFromList) {
+                this.plugin.getEconomyPlayer().remove(uuid);
+            }
             this.saveFile(this.file, this.yamlConfiguration);
         }
+    }
+
+    public void pushEconomyPlayer(UUID uuid) {
+        pushEconomyPlayer(uuid, true);
     }
 
     private void delete(UUID uuid) {
