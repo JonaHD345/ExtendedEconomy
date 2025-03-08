@@ -7,10 +7,6 @@ import de.jonahd345.xenfororesourcemanagerapi.XenforoResourceManagerAPI;
 import de.jonahd345.xenfororesourcemanagerapi.model.Resource;
 import lombok.Getter;
 
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.Arrays;
 
 public class UpdateService {

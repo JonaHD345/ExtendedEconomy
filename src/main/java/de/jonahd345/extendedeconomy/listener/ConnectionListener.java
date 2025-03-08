@@ -35,6 +35,6 @@ public class ConnectionListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
-        this.plugin.getEconomyService().pushEconomyPlayer(player.getUniqueId());
+        this.plugin.getEconomyService().updateEconomyPlayer(player.getUniqueId());
     }
 }

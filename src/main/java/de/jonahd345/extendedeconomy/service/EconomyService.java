@@ -52,63 +52,55 @@ public class EconomyService {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+            try {
+                if (resultSet != null) resultSet.close();
+                if (preparedStatement != null) preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
         if (!(this.plugin.getEconomyPlayer().containsKey(uuid))) {
             this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid, Config.STARTCOINS.getValueAsDouble()));
+            this.pushEconomyPlayer(uuid);
         }
     }
 
-    public void pushEconomyPlayer(UUID uuid, boolean removeFromList) {
+    public void pushEconomyPlayer(UUID uuid) {
         PreparedStatement preparedStatement = null;
 
-        delete(uuid);
         try {
             preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);");
             preparedStatement.setString(1, uuid.toString());
             preparedStatement.setDouble(2, this.plugin.getEconomyPlayer().get(uuid).getCoins());
             preparedStatement.executeUpdate();
-            if (removeFromList) {
-                this.plugin.getEconomyPlayer().remove(uuid);
-            }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+            try {
+                if (preparedStatement != null) preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    public void pushEconomyPlayer(UUID uuid) {
-        pushEconomyPlayer(uuid, false);
-    }
-
-    private void delete(UUID uuid) {
+    public void updateEconomyPlayer(UUID uuid) {
         PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
         try {
-            preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("DELETE FROM extendedeconomy_coins WHERE uuid = ?;");
-            preparedStatement.setString(1, uuid.toString());
+            preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("UPDATE extendedeconomy_coins SET coins = ? WHERE uuid = ?;");
+            preparedStatement.setDouble(1, this.plugin.getEconomyPlayer().get(uuid).getCoins());
+            preparedStatement.setString(2, uuid.toString());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+            try {
+                if (resultSet != null) resultSet.close();
+                if (preparedStatement != null) preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -120,7 +112,7 @@ public class EconomyService {
         if (filePlayers.exists()) {
             for (String uuid : yamlConfigurationPlayers.getKeys(false)) {
                 this.plugin.getEconomyPlayer().put(UUID.fromString(uuid), new EconomyPlayer(UUID.fromString(uuid), yamlConfigurationPlayers.getDouble(uuid)));
-                this.pushEconomyPlayer(UUID.fromString(uuid), true);
+                this.pushEconomyPlayer(UUID.fromString(uuid));
             }
             filePlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/coins/coinsOld.yml"));
         }
