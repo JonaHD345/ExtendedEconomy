@@ -47,7 +47,7 @@ public class MoneyCommand implements CommandExecutor {
                 this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
                 player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
                         Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(offlinePlayer)))));
-                this.plugin.getEconomyPlayer().remove(offlinePlayer.getUniqueId());
+                this.plugin.getEconomyService().getEconomyPlayer().remove(offlinePlayer.getUniqueId());
                 return true;
             }
             player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),

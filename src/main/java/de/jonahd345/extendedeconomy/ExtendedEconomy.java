@@ -30,14 +30,19 @@ import java.util.*;
 @Getter
 public final class ExtendedEconomy extends JavaPlugin {
     private Metrics metrics;
+
     private ExpansionManager expansionManager;
+
     private Economy economy;
+
     private UpdateService updateService;
-    private Map<UUID, EconomyPlayer> economyPlayer;
-    private List<EconomyTopPlayer> economyTopPlayer;
+
     private ConfigService configService;
+
     private DatabaseProvider databaseProvider;
+
     private EconomyService economyService;
+
     private TopPlayerSerializer topPlayerSerializer;
 
     @Override
@@ -64,9 +69,6 @@ public final class ExtendedEconomy extends JavaPlugin {
         }
 
         this.updateService = new UpdateService(this);
-
-        this.economyPlayer = new HashMap<>();
-        this.economyTopPlayer = new ArrayList<>();
 
         this.configService = new ConfigService(this);
         this.configService.loadConfig();

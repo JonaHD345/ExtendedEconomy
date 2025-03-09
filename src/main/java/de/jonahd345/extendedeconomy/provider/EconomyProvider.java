@@ -55,12 +55,12 @@ public class EconomyProvider implements Economy {
 
     @Override
     public boolean hasAccount(String s) {
-        return this.plugin.getEconomyPlayer().containsKey(Bukkit.getOfflinePlayer(s).getUniqueId());
+        return this.plugin.getEconomyService().getEconomyPlayer().containsKey(Bukkit.getOfflinePlayer(s).getUniqueId());
     }
 
     @Override
     public boolean hasAccount(OfflinePlayer offlinePlayer) {
-        return this.plugin.getEconomyPlayer().containsKey(offlinePlayer.getUniqueId());
+        return this.plugin.getEconomyService().getEconomyPlayer().containsKey(offlinePlayer.getUniqueId());
     }
 
     @Override
@@ -75,12 +75,12 @@ public class EconomyProvider implements Economy {
 
     @Override
     public double getBalance(String s) {
-        return this.plugin.getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).getCoins();
+        return this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).getCoins();
     }
 
     @Override
     public double getBalance(OfflinePlayer offlinePlayer) {
-        return this.plugin.getEconomyPlayer().get(offlinePlayer.getUniqueId()).getCoins();
+        return this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).getCoins();
     }
 
     @Override
@@ -95,12 +95,12 @@ public class EconomyProvider implements Economy {
 
     @Override
     public boolean has(String s, double v) {
-        return this.plugin.getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).getCoins() <= v;
+        return this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).getCoins() <= v;
     }
 
     @Override
     public boolean has(OfflinePlayer offlinePlayer, double v) {
-        return this.plugin.getEconomyPlayer().get(offlinePlayer.getUniqueId()).getCoins() <= v;
+        return this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).getCoins() <= v;
     }
 
     @Override
@@ -115,49 +115,49 @@ public class EconomyProvider implements Economy {
 
     @Override
     public EconomyResponse withdrawPlayer(String s, double v) {
-        this.plugin.getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) - v);
+        this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) - v);
         return new EconomyResponse(v, this.getBalance(s), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer offlinePlayer, double v) {
-        this.plugin.getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins(this.getBalance(offlinePlayer) - v);
+        this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins(this.getBalance(offlinePlayer) - v);
         return new EconomyResponse(v, this.getBalance(offlinePlayer), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     @Override
     public EconomyResponse withdrawPlayer(String s, String s1, double v) {
-        this.plugin.getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) - v);
+        this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) - v);
         return new EconomyResponse(v, this.getBalance(s), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer offlinePlayer, String s, double v) {
-        this.plugin.getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins(this.getBalance(offlinePlayer) - v);
+        this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins(this.getBalance(offlinePlayer) - v);
         return new EconomyResponse(v, this.getBalance(offlinePlayer), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     @Override
     public EconomyResponse depositPlayer(String s, double v) {
-        this.plugin.getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) + v);
+        this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) + v);
         return new EconomyResponse(v, this.getBalance(s), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer offlinePlayer, double v) {
-        this.plugin.getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins((this.getBalance(offlinePlayer) + v));
+        this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins((this.getBalance(offlinePlayer) + v));
         return new EconomyResponse(v, this.getBalance(offlinePlayer), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     @Override
     public EconomyResponse depositPlayer(String s, String s1, double v) {
-        this.plugin.getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) + v);
+        this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) + v);
         return new EconomyResponse(v, this.getBalance(s), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer offlinePlayer, String s, double v) {
-        this.plugin.getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins(this.getBalance(offlinePlayer) + v);
+        this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins(this.getBalance(offlinePlayer) + v);
         return new EconomyResponse(v, this.getBalance(offlinePlayer), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
@@ -225,37 +225,37 @@ public class EconomyProvider implements Economy {
 
     @Override
     public boolean createPlayerAccount(String s) {
-        if (this.plugin.getEconomyPlayer().containsKey(Bukkit.getOfflinePlayer(s).getUniqueId())) {
+        if (this.plugin.getEconomyService().getEconomyPlayer().containsKey(Bukkit.getOfflinePlayer(s).getUniqueId())) {
             return false;
         }
-        this.plugin.getEconomyPlayer().put(Bukkit.getOfflinePlayer(s).getUniqueId(), new EconomyPlayer(Bukkit.getOfflinePlayer(s).getUniqueId()));
+        this.plugin.getEconomyService().getEconomyPlayer().put(Bukkit.getOfflinePlayer(s).getUniqueId(), new EconomyPlayer(Bukkit.getOfflinePlayer(s).getUniqueId()));
         return true;
     }
 
     @Override
     public boolean createPlayerAccount(OfflinePlayer offlinePlayer) {
-        if (this.plugin.getEconomyPlayer().containsKey(offlinePlayer.getUniqueId())) {
+        if (this.plugin.getEconomyService().getEconomyPlayer().containsKey(offlinePlayer.getUniqueId())) {
             return false;
         }
-        this.plugin.getEconomyPlayer().put(offlinePlayer.getUniqueId(), new EconomyPlayer(offlinePlayer.getUniqueId()));
+        this.plugin.getEconomyService().getEconomyPlayer().put(offlinePlayer.getUniqueId(), new EconomyPlayer(offlinePlayer.getUniqueId()));
         return true;
     }
 
     @Override
     public boolean createPlayerAccount(String s, String s1) {
-        if (this.plugin.getEconomyPlayer().containsKey(Bukkit.getOfflinePlayer(s).getUniqueId())) {
+        if (this.plugin.getEconomyService().getEconomyPlayer().containsKey(Bukkit.getOfflinePlayer(s).getUniqueId())) {
             return false;
         }
-        this.plugin.getEconomyPlayer().put(Bukkit.getOfflinePlayer(s).getUniqueId(), new EconomyPlayer(Bukkit.getOfflinePlayer(s).getUniqueId()));
+        this.plugin.getEconomyService().getEconomyPlayer().put(Bukkit.getOfflinePlayer(s).getUniqueId(), new EconomyPlayer(Bukkit.getOfflinePlayer(s).getUniqueId()));
         return true;
     }
 
     @Override
     public boolean createPlayerAccount(OfflinePlayer offlinePlayer, String s) {
-        if (this.plugin.getEconomyPlayer().containsKey(offlinePlayer.getUniqueId())) {
+        if (this.plugin.getEconomyService().getEconomyPlayer().containsKey(offlinePlayer.getUniqueId())) {
             return false;
         }
-        this.plugin.getEconomyPlayer().put(offlinePlayer.getUniqueId(), new EconomyPlayer(offlinePlayer.getUniqueId()));
+        this.plugin.getEconomyService().getEconomyPlayer().put(offlinePlayer.getUniqueId(), new EconomyPlayer(offlinePlayer.getUniqueId()));
         return true;
     }
 }
