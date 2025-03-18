@@ -5,8 +5,6 @@ import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.config.MySql;
 import de.jonahd345.extendedeconomy.listener.ConnectionListener;
 import de.jonahd345.extendedeconomy.manager.ExpansionManager;
-import de.jonahd345.extendedeconomy.model.EconomyPlayer;
-import de.jonahd345.extendedeconomy.model.EconomyTopPlayer;
 import de.jonahd345.extendedeconomy.provider.DatabaseProvider;
 import de.jonahd345.extendedeconomy.provider.EconomyProvider;
 import de.jonahd345.extendedeconomy.service.ConfigService;
@@ -25,7 +23,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.util.*;
 
 @Getter
 public final class ExtendedEconomy extends JavaPlugin {
@@ -74,7 +71,7 @@ public final class ExtendedEconomy extends JavaPlugin {
         this.configService.loadConfig();
 
         if (Config.MYSQL.getValueAsBoolean()) {
-            this.databaseProvider = new DatabaseProvider(MySql.HOST.getValue(), MySql.PORT.getValue(), MySql.USER.getValue(), MySql.PASSWORD.getValue(), MySql.DATABASE.getValue());
+            this.databaseProvider = new DatabaseProvider(MySql.HOST.getValue(), MySql.PORT.getValue(), MySql.USER.getValue(), MySql.PASSWORD.getValue(), MySql.DATABASE.getValue(), getLogger(), getDescription().getVersion());
             this.databaseProvider.update("RENAME TABLE IF EXISTS easyeconomy_coins TO extendedeconomy_coins;"); // Rename table from EasyEconomy to ExtendedEconomy
         } else {
             FileUtil.createDirectory(new File("plugins/" + this.getName() + "/coins"));
