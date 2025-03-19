@@ -75,7 +75,9 @@ public final class ExtendedEconomy extends JavaPlugin {
 
         if (Config.MYSQL.getValueAsBoolean()) {
             this.databaseProvider = new DatabaseProvider(MySql.HOST.getValue(), MySql.PORT.getValue(), MySql.USER.getValue(), MySql.PASSWORD.getValue(), MySql.DATABASE.getValue(), getLogger(), getDescription().getVersion());
-            this.databaseProvider.update("RENAME TABLE IF EXISTS easyeconomy_coins TO extendedeconomy_coins;"); // Rename table from EasyEconomy to ExtendedEconomy
+            if (this.databaseProvider.isTablePresent("easyeconomy_coins")) {
+                this.databaseProvider.update("RENAME TABLE easyeconomy_coins TO extendedeconomy_coins;"); // Rename table from EasyEconomy to ExtendedEconomy
+            }
         } else {
             FileUtil.createDirectory(new File("plugins/" + this.getName() + "/coins"));
             this.databaseProvider = new DatabaseProvider("plugins/" + this.getName() + "/coins/coins.db");
