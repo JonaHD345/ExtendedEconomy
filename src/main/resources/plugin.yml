@@ -1,12 +1,14 @@
 name: ExtendedEconomy
-version: 3.1
+version: 3.2
 main: de.jonahd345.extendedeconomy.ExtendedEconomy
 api-version: 1.17
 author: JonaHD345
 description: a extended economy system
 website: https://jonahd345.de
-softdepend:
+load: STARTUP
+depend:
   - Vault
+softdepend:
   - PlaceholderAPI
 loadbefore:
   - Guilds

@@ -5,14 +5,13 @@ import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.config.MySql;
 import de.jonahd345.extendedeconomy.listener.ConnectionListener;
 import de.jonahd345.extendedeconomy.manager.ExpansionManager;
-import de.jonahd345.extendedeconomy.model.EconomyPlayer;
-import de.jonahd345.extendedeconomy.model.EconomyTopPlayer;
 import de.jonahd345.extendedeconomy.provider.DatabaseProvider;
 import de.jonahd345.extendedeconomy.provider.EconomyProvider;
 import de.jonahd345.extendedeconomy.service.ConfigService;
 import de.jonahd345.extendedeconomy.service.EconomyService;
 import de.jonahd345.extendedeconomy.service.UpdateService;
 import de.jonahd345.extendedeconomy.util.FileUtil;
+import de.jonahd345.extendedeconomy.util.LogFilter;
 import de.jonahd345.extendedeconomy.util.Metrics;
 import de.jonahd345.extendedeconomy.util.TopPlayerSerializer;
 import lombok.Getter;
@@ -25,24 +24,30 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.util.*;
 
 @Getter
 public final class ExtendedEconomy extends JavaPlugin {
     private Metrics metrics;
+
     private ExpansionManager expansionManager;
+
     private Economy economy;
+
     private UpdateService updateService;
-    private Map<UUID, EconomyPlayer> economyPlayer;
-    private List<EconomyTopPlayer> economyTopPlayer;
+
     private ConfigService configService;
+
     private DatabaseProvider databaseProvider;
+
     private EconomyService economyService;
+
     private TopPlayerSerializer topPlayerSerializer;
 
     @Override
     public void onEnable() {
         this.metrics = new Metrics(this, 22975);
+
+        LogFilter.registerFilter();
 
         if (!(setupEconomy())) {
             getLogger().info("No Vault was found! PLUGIN DISABLED!");
@@ -65,15 +70,14 @@ public final class ExtendedEconomy extends JavaPlugin {
 
         this.updateService = new UpdateService(this);
 
-        this.economyPlayer = new HashMap<>();
-        this.economyTopPlayer = new ArrayList<>();
-
         this.configService = new ConfigService(this);
         this.configService.loadConfig();
 
         if (Config.MYSQL.getValueAsBoolean()) {
-            this.databaseProvider = new DatabaseProvider(MySql.HOST.getValue(), MySql.PORT.getValue(), MySql.USER.getValue(), MySql.PASSWORD.getValue(), MySql.DATABASE.getValue());
-            this.databaseProvider.update("RENAME TABLE IF EXISTS easyeconomy_coins TO extendedeconomy_coins;"); // Rename table from EasyEconomy to ExtendedEconomy
+            this.databaseProvider = new DatabaseProvider(MySql.HOST.getValue(), MySql.PORT.getValue(), MySql.USER.getValue(), MySql.PASSWORD.getValue(), MySql.DATABASE.getValue(), getLogger(), getDescription().getVersion());
+            if (this.databaseProvider.isTablePresent("easyeconomy_coins")) {
+                this.databaseProvider.update("RENAME TABLE easyeconomy_coins TO extendedeconomy_coins;"); // Rename table from EasyEconomy to ExtendedEconomy
+            }
         } else {
             FileUtil.createDirectory(new File("plugins/" + this.getName() + "/coins"));
             this.databaseProvider = new DatabaseProvider("plugins/" + this.getName() + "/coins/coins.db");
@@ -100,7 +104,7 @@ public final class ExtendedEconomy extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                Bukkit.getOnlinePlayers().forEach(p -> getEconomyService().pushEconomyPlayer(p.getUniqueId(), false));
+                Bukkit.getOnlinePlayers().forEach(p -> getEconomyService().updateEconomyPlayer(p.getUniqueId()));
             }
         }.runTaskTimerAsynchronously(this, 6000L, 6000L);
 
@@ -109,7 +113,7 @@ public final class ExtendedEconomy extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Bukkit.getOnlinePlayers().forEach(player -> this.economyService.pushEconomyPlayer(player.getUniqueId()));
+        Bukkit.getOnlinePlayers().forEach(player -> this.economyService.updateEconomyPlayer(player.getUniqueId()));
         this.economyService.pushTopPlayers();
         this.databaseProvider.disconnect();
     }

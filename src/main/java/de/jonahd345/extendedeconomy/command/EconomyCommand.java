@@ -40,7 +40,7 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
                     sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
                             Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(offlinePlayer)))));
-                    this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
+                    this.plugin.getEconomyService().getEconomyPlayer().remove(offlinePlayer.getUniqueId());
                     return true;
                 }
                 sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
@@ -62,7 +62,8 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
                     this.plugin.getEconomy().withdrawPlayer(offlinePlayer, this.plugin.getEconomy().getBalance(offlinePlayer));
                     this.plugin.getEconomy().depositPlayer(offlinePlayer, amount);
-                    this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
+                    this.plugin.getEconomyService().updateEconomyPlayer(offlinePlayer.getUniqueId());
+                    this.plugin.getEconomyService().getEconomyPlayer().remove(offlinePlayer.getUniqueId());
                     sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
                             Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
                     return true;
@@ -83,7 +84,8 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
                     this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
                     this.plugin.getEconomy().depositPlayer(offlinePlayer, amount);
-                    this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
+                    this.plugin.getEconomyService().updateEconomyPlayer(offlinePlayer.getUniqueId());
+                    this.plugin.getEconomyService().getEconomyPlayer().remove(offlinePlayer.getUniqueId());
                     sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.ECO_ADD),
                             Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
                     return true;
@@ -107,7 +109,8 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                         return true;
                     }
                     this.plugin.getEconomy().withdrawPlayer(offlinePlayer, amount);
-                    this.plugin.getEconomyService().pushEconomyPlayer(offlinePlayer.getUniqueId());
+                    this.plugin.getEconomyService().updateEconomyPlayer(offlinePlayer.getUniqueId());
+                    this.plugin.getEconomyService().getEconomyPlayer().remove(offlinePlayer.getUniqueId());
                     sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.ECO_TAKE),
                             Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
                     return true;

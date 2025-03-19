@@ -7,6 +7,7 @@ import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
 import de.jonahd345.extendedeconomy.model.EconomyTopPlayer;
 import de.jonahd345.extendedeconomy.util.UUIDFetcher;
+import lombok.Getter;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
@@ -17,14 +18,18 @@ import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class EconomyService {
     private ExtendedEconomy plugin;
+
+    @Getter
+    private Map<UUID, EconomyPlayer> economyPlayer;
+
+    @Getter
+    private List<EconomyTopPlayer> economyTopPlayer;
 
     private Gson gson;
 
@@ -32,6 +37,8 @@ public class EconomyService {
 
     public EconomyService(ExtendedEconomy plugin) {
         this.plugin = plugin;
+        this.economyPlayer = new HashMap<>();
+        this.economyTopPlayer = new ArrayList<>();
         this.gson = new Gson();
         this.listTypeTopPlayers = new TypeToken<List<EconomyTopPlayer>>() {}.getType();
         this.convertTopPlayersYamlToJson();
@@ -47,68 +54,60 @@ public class EconomyService {
             preparedStatement.setString(1, uuid.toString());
             resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
-                this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid, resultSet.getDouble("coins")));
+                this.economyPlayer.put(uuid, new EconomyPlayer(uuid, resultSet.getDouble("coins")));
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+            try {
+                if (resultSet != null) resultSet.close();
+                if (preparedStatement != null) preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
-        if (!(this.plugin.getEconomyPlayer().containsKey(uuid))) {
-            this.plugin.getEconomyPlayer().put(uuid, new EconomyPlayer(uuid, Config.STARTCOINS.getValueAsDouble()));
-        }
-    }
-
-    public void pushEconomyPlayer(UUID uuid, boolean removeFromList) {
-        PreparedStatement preparedStatement = null;
-
-        delete(uuid);
-        try {
-            preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);");
-            preparedStatement.setString(1, uuid.toString());
-            preparedStatement.setDouble(2, this.plugin.getEconomyPlayer().get(uuid).getCoins());
-            preparedStatement.executeUpdate();
-            if (removeFromList) {
-                this.plugin.getEconomyPlayer().remove(uuid);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+        if (!(this.economyPlayer.containsKey(uuid))) {
+            this.economyPlayer.put(uuid, new EconomyPlayer(uuid, Config.STARTCOINS.getValueAsDouble()));
+            this.pushEconomyPlayer(uuid);
         }
     }
 
     public void pushEconomyPlayer(UUID uuid) {
-        pushEconomyPlayer(uuid, false);
-    }
-
-    private void delete(UUID uuid) {
         PreparedStatement preparedStatement = null;
+
         try {
-            preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("DELETE FROM extendedeconomy_coins WHERE uuid = ?;");
+            preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);");
             preparedStatement.setString(1, uuid.toString());
+            preparedStatement.setDouble(2, this.economyPlayer.get(uuid).getCoins());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+            try {
+                if (preparedStatement != null) preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void updateEconomyPlayer(UUID uuid) {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+
+        try {
+            preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("UPDATE extendedeconomy_coins SET coins = ? WHERE uuid = ?;");
+            preparedStatement.setDouble(1, this.economyPlayer.get(uuid).getCoins());
+            preparedStatement.setString(2, uuid.toString());
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (resultSet != null) resultSet.close();
+                if (preparedStatement != null) preparedStatement.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -119,8 +118,8 @@ public class EconomyService {
 
         if (filePlayers.exists()) {
             for (String uuid : yamlConfigurationPlayers.getKeys(false)) {
-                this.plugin.getEconomyPlayer().put(UUID.fromString(uuid), new EconomyPlayer(UUID.fromString(uuid), yamlConfigurationPlayers.getDouble(uuid)));
-                this.pushEconomyPlayer(UUID.fromString(uuid), true);
+                this.economyPlayer.put(UUID.fromString(uuid), new EconomyPlayer(UUID.fromString(uuid), yamlConfigurationPlayers.getDouble(uuid)));
+                this.pushEconomyPlayer(UUID.fromString(uuid));
             }
             filePlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/coins/coinsOld.yml"));
         }
@@ -145,7 +144,7 @@ public class EconomyService {
             }
         }
         list = list.stream().sorted((o1, o2) -> Double.compare(o2.getCoins(), o1.getCoins())).collect(Collectors.toList());
-        this.plugin.getEconomyTopPlayer().addAll(list);
+        this.economyTopPlayer.addAll(list);
     }
 
     public void loadTopPlayers() {
@@ -155,15 +154,15 @@ public class EconomyService {
             this.pushTopPlayers(); // Create the file if it doesn't exist
         }
         try (FileReader reader = new FileReader(file)) {
-            this.plugin.getEconomyTopPlayer().addAll(this.gson.fromJson(reader, this.listTypeTopPlayers));
+            this.economyTopPlayer.addAll(this.gson.fromJson(reader, this.listTypeTopPlayers));
         } catch (IOException e) {
             this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
     }
 
     public void refreshTopPlayers() {
-        List<EconomyTopPlayer> list = this.plugin.getEconomyTopPlayer();
-        List<EconomyPlayer> economyPlayers = new ArrayList<>(this.plugin.getEconomyPlayer().values());
+        List<EconomyTopPlayer> list = this.economyTopPlayer;
+        List<EconomyPlayer> economyPlayers = new ArrayList<>(this.economyPlayer.values());
 
         for (EconomyPlayer economyPlayer : economyPlayers) {
             list.removeIf(economyTopPlayer -> economyTopPlayer.getUuid().equals(economyPlayer.getUuid()));
@@ -171,26 +170,16 @@ public class EconomyService {
             list.add(new EconomyTopPlayer(economyPlayer.getUuid(), new UUIDFetcher().getNameByUniqueId(economyPlayer.getUuid()), coins));
         }
         list = list.stream().sorted((o1, o2) -> Double.compare(o2.getCoins(), o1.getCoins())).collect(Collectors.toList());
-        this.plugin.getEconomyTopPlayer().clear();
-        this.plugin.getEconomyTopPlayer().addAll(list);
+        this.economyTopPlayer.clear();
+        this.economyTopPlayer.addAll(list);
     }
 
     public void pushTopPlayers() {
         try (FileWriter writer = new FileWriter("plugins/" + this.plugin.getName() + "/leaderboard.json")) {
-            this.gson.toJson(this.plugin.getEconomyTopPlayer(), this.listTypeTopPlayers, writer);
+            this.gson.toJson(this.economyTopPlayer, this.listTypeTopPlayers, writer);
         } catch (IOException e) {
             this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
-        this.plugin.getEconomyTopPlayer().clear();
-    }
-
-    private void createFileIfNotExist(File file) {
-        if (!(file.exists())) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
-            }
-        }
+        this.economyTopPlayer.clear();
     }
 }

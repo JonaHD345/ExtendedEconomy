@@ -34,7 +34,7 @@ public class ExpansionManager extends PlaceholderExpansion {
     @Override
     public String onRequest(OfflinePlayer player, String parameter) {
         if(parameter.equalsIgnoreCase("user_balance")) {
-            return NumberUtil.formatNumber(this.plugin.getEconomyPlayer().get(player.getUniqueId()).getCoins());
+            return NumberUtil.formatNumber(this.plugin.getEconomyService().getEconomyPlayer().get(player.getUniqueId()).getCoins());
         }
         if (parameter.equalsIgnoreCase("leaderboard_headline")) {
             return Leaderboard.HEADLINE.getValueAsString();
@@ -44,15 +44,15 @@ public class ExpansionManager extends PlaceholderExpansion {
         }
         if (parameter.contains("leaderboard_place_")) {
             if (NumberUtil.isInt(parameter.split("_")[2]) &&
-                    this.plugin.getEconomyTopPlayer().size() >= Integer.parseInt(parameter.split("_")[2])) {
+                    this.plugin.getEconomyService().getEconomyTopPlayer().size() >= Integer.parseInt(parameter.split("_")[2])) {
                 if (Integer.parseInt(parameter.split("_")[2]) <= 3) {
                     return Leaderboard.valueOf("place_" + this.place[Integer.parseInt(parameter.split("_")[2]) - 1]).getValueAsString().replace("%Player%",
-                            this.plugin.getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getName()).replace("%Amount%",
-                            NumberUtil.formatNumber(this.plugin.getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getCoins()));
+                            this.plugin.getEconomyService().getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getName()).replace("%Amount%",
+                            NumberUtil.formatNumber(this.plugin.getEconomyService().getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getCoins()));
                 } else {
                     return Leaderboard.PLACE_OTHER.getValueAsString().replace("%Player%",
-                                    this.plugin.getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getName()).replace("%Amount%",
-                                    NumberUtil.formatNumber(this.plugin.getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getCoins()))
+                                    this.plugin.getEconomyService().getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getName()).replace("%Amount%",
+                                    NumberUtil.formatNumber(this.plugin.getEconomyService().getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getCoins()))
                             .replace("%Place%", parameter.split("_")[2]);
                 }
             } else {

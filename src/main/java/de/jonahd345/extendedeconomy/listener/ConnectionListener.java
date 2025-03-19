@@ -20,7 +20,6 @@ public class ConnectionListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        this.plugin.getDatabaseProvider().checkDatabase();
         this.plugin.getEconomyService().loadEconomyPlayer(player.getUniqueId());
         if (this.plugin.getUpdateService().isUpdateAvailable() && Config.UPDATE_NOTIFICATION.getValueAsBoolean()) {
             if (player.hasPermission("extendedeconomy.admin")) {
@@ -35,6 +34,6 @@ public class ConnectionListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
-        this.plugin.getEconomyService().pushEconomyPlayer(player.getUniqueId());
+        this.plugin.getEconomyService().updateEconomyPlayer(player.getUniqueId());
     }
 }
