@@ -3,7 +3,6 @@ package de.jonahd345.extendedeconomy.provider;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import de.jonahd345.extendedeconomy.config.Config;
-import de.jonahd345.extendedeconomy.config.MySql;
 import lombok.Getter;
 
 import java.sql.*;
