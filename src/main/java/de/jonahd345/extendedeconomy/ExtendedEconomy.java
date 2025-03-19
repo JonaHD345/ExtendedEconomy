@@ -68,10 +68,10 @@ public final class ExtendedEconomy extends JavaPlugin {
             }
         }
 
-        this.updateService = new UpdateService(this);
-
         this.configService = new ConfigService(this);
         this.configService.loadConfig();
+
+        this.updateService = new UpdateService(this);
 
         if (Config.MYSQL.getValueAsBoolean()) {
             this.databaseProvider = new DatabaseProvider(MySql.HOST.getValue(), MySql.PORT.getValue(), MySql.USER.getValue(), MySql.PASSWORD.getValue(), MySql.DATABASE.getValue(), getLogger(), getDescription().getVersion());
