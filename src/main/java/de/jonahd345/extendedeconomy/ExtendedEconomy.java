@@ -11,6 +11,7 @@ import de.jonahd345.extendedeconomy.service.ConfigService;
 import de.jonahd345.extendedeconomy.service.EconomyService;
 import de.jonahd345.extendedeconomy.service.UpdateService;
 import de.jonahd345.extendedeconomy.util.FileUtil;
+import de.jonahd345.extendedeconomy.util.LogFilter;
 import de.jonahd345.extendedeconomy.util.Metrics;
 import de.jonahd345.extendedeconomy.util.TopPlayerSerializer;
 import lombok.Getter;
@@ -45,6 +46,8 @@ public final class ExtendedEconomy extends JavaPlugin {
     @Override
     public void onEnable() {
         this.metrics = new Metrics(this, 22975);
+
+        LogFilter.registerFilter();
 
         if (!(setupEconomy())) {
             getLogger().info("No Vault was found! PLUGIN DISABLED!");

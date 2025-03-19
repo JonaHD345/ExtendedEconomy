@@ -31,7 +31,7 @@ public class LogFilter extends AbstractFilter
             return Result.NEUTRAL;
         }
         // Filter Hikari INFO logs
-        if(event.getLoggerName().contains("Hikari") && event.getLevel() == Level.INFO)
+        if(event.getLoggerName().toUpperCase().contains("HIKARI") && event.getLevel() == Level.INFO)
         {
             return Result.DENY;
         }
