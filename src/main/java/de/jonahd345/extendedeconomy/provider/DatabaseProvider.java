@@ -3,6 +3,7 @@ package de.jonahd345.extendedeconomy.provider;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import de.jonahd345.extendedeconomy.config.Config;
+import de.jonahd345.extendedeconomy.config.MySql;
 import lombok.Getter;
 
 import java.sql.*;
@@ -126,6 +127,24 @@ public class DatabaseProvider {
             }
         }
         return null;
+    }
+
+    /**
+     * Checks if the specified table exists in the database.
+     * @param tableName the name of the table to check
+     * @return true if the table exists, false otherwise
+     */
+    public boolean isTablePresent(String tableName) {
+        ResultSet resultSet = this.getResult("SELECT COUNT(*) AS total FROM information_schema.tables WHERE table_schema = '" + database + "' AND table_name = '" + tableName + "';");
+
+        try {
+            if (resultSet != null && resultSet.next()) {
+                return resultSet.getInt("total") == 1;
+            }
+        } catch (SQLException e) {
+            logger.severe("Error checking if table exists: " + e.getMessage());
+        }
+        return false;
     }
 
     /**
