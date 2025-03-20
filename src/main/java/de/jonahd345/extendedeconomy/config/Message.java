@@ -6,6 +6,8 @@ import lombok.Setter;
 @Getter
 public enum Message {
     PREFIX("&a&lEXTENDEDECONOMY §8» "),
+    CURRENCY_NAME_PLURAL("&fDollars"),
+    CURRENCY_NAME_SINGULAR("&fDollar"),
     NO_PERMISSION("&7No permission!"),
     NO_PLAYER("&7You must be a player!"),
     PLAYER_NOT_FOUND("&7Player not found!"),
