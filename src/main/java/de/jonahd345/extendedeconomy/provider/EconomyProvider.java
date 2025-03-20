@@ -3,6 +3,7 @@ package de.jonahd345.extendedeconomy.provider;
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Message;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
+import de.jonahd345.extendedeconomy.util.NumberUtil;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
 import org.bukkit.Bukkit;
@@ -40,7 +41,7 @@ public class EconomyProvider implements Economy {
 
     @Override
     public String format(double v) {
-        return null;
+        return NumberUtil.formatNumber(v);
     }
 
     @Override
