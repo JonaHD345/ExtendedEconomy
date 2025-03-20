@@ -49,15 +49,6 @@ public final class ExtendedEconomy extends JavaPlugin {
 
         LogFilter.registerFilter();
 
-        if (!(setupEconomy())) {
-            getLogger().info("No Vault was found! PLUGIN DISABLED!");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-        if (!(setupPlaceholderAPI())) {
-            getLogger().info("No PlaceholderAPI was found!");
-        }
-
         // Rename the old directory to the new one (EasyEconomy -> ExtendedEconomy)
         File directory = new File("plugins/EasyEconomy");
         if (directory.exists() && directory.isDirectory()) {
@@ -70,6 +61,15 @@ public final class ExtendedEconomy extends JavaPlugin {
 
         this.configService = new ConfigService(this);
         this.configService.loadConfig();
+
+        if (!(setupEconomy())) {
+            getLogger().info("No Vault was found! PLUGIN DISABLED!");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        if (!(setupPlaceholderAPI())) {
+            getLogger().info("No PlaceholderAPI was found!");
+        }
 
         this.updateService = new UpdateService(this);
 

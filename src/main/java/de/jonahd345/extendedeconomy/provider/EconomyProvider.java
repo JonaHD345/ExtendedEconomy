@@ -1,6 +1,7 @@
 package de.jonahd345.extendedeconomy.provider;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
+import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.config.Message;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
 import de.jonahd345.extendedeconomy.util.NumberUtil;
@@ -46,12 +47,12 @@ public class EconomyProvider implements Economy {
 
     @Override
     public String currencyNamePlural() {
-        return null;
+        return Message.CURRENCY_NAME_PLURAL.getMessage();
     }
 
     @Override
     public String currencyNameSingular() {
-        return null;
+        return Message.CURRENCY_NAME_SINGULAR.getMessage();
     }
 
     @Override
