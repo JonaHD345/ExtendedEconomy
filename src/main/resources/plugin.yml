@@ -1,5 +1,5 @@
 name: ExtendedEconomy
-version: 3.3
+version: 3.4
 main: de.jonahd345.extendedeconomy.ExtendedEconomy
 api-version: 1.17
 author: JonaHD345
@@ -11,7 +11,7 @@ depend:
 softdepend:
   - PlaceholderAPI
 loadbefore:
-  - Guilds
+  - Guilds # unnecessary ?
 
 commands:
   extendedeconomy:

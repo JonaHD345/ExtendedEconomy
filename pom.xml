@@ -6,7 +6,7 @@
 
     <groupId>de.jonahd345</groupId>
     <artifactId>extendedeconomy</artifactId>
-    <version>3.3</version>
+    <version>3.4</version>
     <packaging>jar</packaging>
 
     <name>ExtendedEconomy</name>
