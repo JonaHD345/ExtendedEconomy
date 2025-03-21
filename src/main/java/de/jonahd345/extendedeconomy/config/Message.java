@@ -16,7 +16,7 @@ public enum Message {
     PAY("&7You have %Player% payed %Amount%!"),
     GET_MONEY("&7You received %Amount% from %Player%!"),
     MONEY("&7You have %Amount% coins!"),
-    MONEY_OTHER("&7The %Player% have %Amount% coins!"),
+    MONEY_OTHER("&7%Player% have %Amount% coins!"),
     PAY_EXCEPTION("&7You can't pay yourself!"),
     ECO_SET("&7You set %Player%'s balance %Amount%!"),
     ECO_ADD("&7You add %Player%'s balance %Amount%!"),
