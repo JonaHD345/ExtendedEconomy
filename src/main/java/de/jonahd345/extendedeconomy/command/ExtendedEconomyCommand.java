@@ -51,12 +51,12 @@ public class ExtendedEconomyCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(Message.getMessageWithPrefix(Message.NO_PERMISSION));
                     return true;
                 }
-                this.plugin.getConfigService().loadConfig();
+                plugin.getConfigService().loadConfig();
                 sender.sendMessage(Message.PREFIX + "reload is done!");
             } else {
                 sender.sendMessage(Message.getMessageWithPrefix(Message.LINE));
                 sender.sendMessage(Message.PREFIX +
-                        "§a§lExtendedEconomy §7v§a" + StringUtil.replacePlaceholder(this.plugin.getDescription().getVersion(), Map.of(".", "§7.§a")));
+                        "§a§lExtendedEconomy §7v§a" + StringUtil.replacePlaceholder(plugin.getDescription().getVersion(), Map.of(".", "§7.§a")));
                 sender.sendMessage(Message.PREFIX + "§7made by §2JonaHD345 §8(§2https://jonahd345.de§8)");
                 sender.sendMessage(Message.PREFIX + "§7for more §7/§aextendedeconomy help");
                 sender.sendMessage(Message.getMessageWithPrefix(Message.LINE));
@@ -64,7 +64,7 @@ public class ExtendedEconomyCommand implements CommandExecutor, TabCompleter {
         } else {
             sender.sendMessage(Message.getMessageWithPrefix(Message.LINE));
             sender.sendMessage(Message.PREFIX +
-                    "§a§lExtendedEconomy §7v§a" + StringUtil.replacePlaceholder(this.plugin.getDescription().getVersion(), Map.of(".", "§7.§a")));
+                    "§a§lExtendedEconomy §7v§a" + StringUtil.replacePlaceholder(plugin.getDescription().getVersion(), Map.of(".", "§7.§a")));
             sender.sendMessage(Message.PREFIX + "§7made by §2JonaHD345 §8(§2https://jonahd345.de§8)");
             sender.sendMessage(Message.PREFIX + "§7download §8(§2https://www.spigotmc.org/resources/extendedeconomy.106888/§8)");
             sender.sendMessage(Message.PREFIX + "§7for more §7/§aextendedeconomy help");

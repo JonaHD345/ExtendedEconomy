@@ -1,7 +1,6 @@
 package de.jonahd345.extendedeconomy.provider;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
-import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.config.Message;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
 import de.jonahd345.extendedeconomy.util.NumberUtil;
@@ -22,12 +21,12 @@ public class EconomyProvider implements Economy {
 
     @Override
     public boolean isEnabled() {
-        return this.plugin.isEnabled();
+        return plugin.isEnabled();
     }
 
     @Override
     public String getName() {
-        return this.plugin.getDescription().getName();
+        return plugin.getDescription().getName();
     }
 
     @Override
@@ -57,168 +56,163 @@ public class EconomyProvider implements Economy {
 
     @Override
     public boolean hasAccount(String s) {
-        return this.plugin.getEconomyService().getEconomyPlayer().containsKey(Bukkit.getOfflinePlayer(s).getUniqueId());
+        return hasAccount(Bukkit.getOfflinePlayer(s));
     }
 
     @Override
     public boolean hasAccount(OfflinePlayer offlinePlayer) {
-        return this.plugin.getEconomyService().getEconomyPlayer().containsKey(offlinePlayer.getUniqueId());
+        return plugin.getEconomyService().getEconomyPlayer().containsKey(offlinePlayer.getUniqueId()) || plugin.getEconomyService().isEconomyPlayerExists(offlinePlayer.getUniqueId());
     }
 
     @Override
     public boolean hasAccount(String s, String s1) {
-        return this.hasAccount(s);
+        return hasAccount(s);
     }
 
     @Override
     public boolean hasAccount(OfflinePlayer offlinePlayer, String s) {
-        return this.hasAccount(offlinePlayer);
+        return hasAccount(offlinePlayer);
     }
 
     @Override
     public double getBalance(String s) {
-        return this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).getCoins();
+        return getBalance(Bukkit.getOfflinePlayer(s));
     }
 
     @Override
     public double getBalance(OfflinePlayer offlinePlayer) {
-        return this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).getCoins();
+        return plugin.getEconomyService().getEconomyPlayer(offlinePlayer.getUniqueId()).getCoins();
     }
 
     @Override
     public double getBalance(String s, String s1) {
-        return this.getBalance(s);
+        return getBalance(s);
     }
 
     @Override
     public double getBalance(OfflinePlayer offlinePlayer, String s) {
-        return this.getBalance(offlinePlayer);
+        return getBalance(offlinePlayer);
     }
 
     @Override
     public boolean has(String s, double v) {
-        return this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).getCoins() <= v;
+        return has(Bukkit.getOfflinePlayer(s), v);
     }
 
     @Override
     public boolean has(OfflinePlayer offlinePlayer, double v) {
-        return this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).getCoins() <= v;
+        return plugin.getEconomyService().getEconomyPlayer(offlinePlayer.getUniqueId()).getCoins() >= v;
     }
 
     @Override
     public boolean has(String s, String s1, double v) {
-        return this.has(s, v);
+        return has(s, v);
     }
 
     @Override
     public boolean has(OfflinePlayer offlinePlayer, String s, double v) {
-        return this.has(offlinePlayer, v);
+        return has(offlinePlayer, v);
     }
 
     @Override
     public EconomyResponse withdrawPlayer(String s, double v) {
-        this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) - v);
-        return new EconomyResponse(v, this.getBalance(s), EconomyResponse.ResponseType.SUCCESS, null);
+        return withdrawPlayer(Bukkit.getOfflinePlayer(s), v);
     }
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer offlinePlayer, double v) {
-        this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins(this.getBalance(offlinePlayer) - v);
-        return new EconomyResponse(v, this.getBalance(offlinePlayer), EconomyResponse.ResponseType.SUCCESS, null);
+        EconomyPlayer economyPlayer = plugin.getEconomyService().getEconomyPlayer(offlinePlayer.getUniqueId());
+        boolean isPlayerInMap = plugin.getEconomyService().getEconomyPlayer().containsKey(offlinePlayer.getUniqueId());
+
+        economyPlayer.setCoins(economyPlayer.getCoins() - v);
+        if (!isPlayerInMap) {
+            plugin.getEconomyService().updateEconomyPlayer(economyPlayer);
+        }
+        return new EconomyResponse(v, economyPlayer.getCoins(), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     @Override
     public EconomyResponse withdrawPlayer(String s, String s1, double v) {
-        this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) - v);
-        return new EconomyResponse(v, this.getBalance(s), EconomyResponse.ResponseType.SUCCESS, null);
+        return withdrawPlayer(Bukkit.getOfflinePlayer(s), v);
     }
 
     @Override
     public EconomyResponse withdrawPlayer(OfflinePlayer offlinePlayer, String s, double v) {
-        this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins(this.getBalance(offlinePlayer) - v);
-        return new EconomyResponse(v, this.getBalance(offlinePlayer), EconomyResponse.ResponseType.SUCCESS, null);
+        return withdrawPlayer(offlinePlayer, v);
     }
 
     @Override
     public EconomyResponse depositPlayer(String s, double v) {
-        this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) + v);
-        return new EconomyResponse(v, this.getBalance(s), EconomyResponse.ResponseType.SUCCESS, null);
+        return depositPlayer(Bukkit.getOfflinePlayer(s), v);
     }
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer offlinePlayer, double v) {
-        this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins((this.getBalance(offlinePlayer) + v));
-        return new EconomyResponse(v, this.getBalance(offlinePlayer), EconomyResponse.ResponseType.SUCCESS, null);
+        EconomyPlayer economyPlayer = plugin.getEconomyService().getEconomyPlayer(offlinePlayer.getUniqueId());
+        boolean isPlayerInMap = plugin.getEconomyService().getEconomyPlayer().containsKey(offlinePlayer.getUniqueId());
+
+        economyPlayer.setCoins(economyPlayer.getCoins() + v);
+        if (!isPlayerInMap) {
+            plugin.getEconomyService().updateEconomyPlayer(economyPlayer);
+        }
+        return new EconomyResponse(v, economyPlayer.getCoins(), EconomyResponse.ResponseType.SUCCESS, null);
     }
 
     @Override
     public EconomyResponse depositPlayer(String s, String s1, double v) {
-        this.plugin.getEconomyService().getEconomyPlayer().get(Bukkit.getOfflinePlayer(s).getUniqueId()).setCoins(this.getBalance(Bukkit.getOfflinePlayer(s)) + v);
-        return new EconomyResponse(v, this.getBalance(s), EconomyResponse.ResponseType.SUCCESS, null);
+        return depositPlayer(Bukkit.getOfflinePlayer(s), v);
     }
 
     @Override
     public EconomyResponse depositPlayer(OfflinePlayer offlinePlayer, String s, double v) {
-        this.plugin.getEconomyService().getEconomyPlayer().get(offlinePlayer.getUniqueId()).setCoins(this.getBalance(offlinePlayer) + v);
-        return new EconomyResponse(v, this.getBalance(offlinePlayer), EconomyResponse.ResponseType.SUCCESS, null);
+        return depositPlayer(offlinePlayer, v);
     }
 
     @Override
     public EconomyResponse createBank(String s, String s1) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, Message.PREFIX.getMessage() +
-                "ExtendedEconomy doesn't support bank accounts!");
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "ExtendedEconomy doesn't support bank accounts!");
     }
 
     @Override
     public EconomyResponse createBank(String s, OfflinePlayer offlinePlayer) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, Message.PREFIX.getMessage() +
-                "ExtendedEconomy doesn't support bank accounts!");
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "ExtendedEconomy doesn't support bank accounts!");
     }
 
     @Override
     public EconomyResponse deleteBank(String s) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, Message.PREFIX.getMessage() +
-                "ExtendedEconomy doesn't support bank accounts!");    }
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse bankBalance(String s) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, Message.PREFIX.getMessage() +
-                "ExtendedEconomy doesn't support bank accounts!");    }
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse bankHas(String s, double v) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, Message.PREFIX.getMessage() +
-                "ExtendedEconomy doesn't support bank accounts!");    }
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse bankWithdraw(String s, double v) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, Message.PREFIX.getMessage() +
-                "ExtendedEconomy doesn't support bank accounts!");    }
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse bankDeposit(String s, double v) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, Message.PREFIX.getMessage() +
-                "ExtendedEconomy doesn't support bank accounts!");    }
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse isBankOwner(String s, String s1) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, Message.PREFIX.getMessage() +
-                "ExtendedEconomy doesn't support bank accounts!");    }
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse isBankOwner(String s, OfflinePlayer offlinePlayer) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, Message.PREFIX.getMessage() +
-                "ExtendedEconomy doesn't support bank accounts!");    }
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse isBankMember(String s, String s1) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, Message.PREFIX.getMessage() +
-                "ExtendedEconomy doesn't support bank accounts!");    }
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public EconomyResponse isBankMember(String s, OfflinePlayer offlinePlayer) {
-        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, Message.PREFIX.getMessage() +
-                "ExtendedEconomy doesn't support bank accounts!");    }
+        return new EconomyResponse(0.0D, 0.0D, EconomyResponse.ResponseType.NOT_IMPLEMENTED, "ExtendedEconomy doesn't support bank accounts!");    }
 
     @Override
     public List<String> getBanks() {
@@ -227,37 +221,25 @@ public class EconomyProvider implements Economy {
 
     @Override
     public boolean createPlayerAccount(String s) {
-        if (this.plugin.getEconomyService().getEconomyPlayer().containsKey(Bukkit.getOfflinePlayer(s).getUniqueId())) {
-            return false;
-        }
-        this.plugin.getEconomyService().getEconomyPlayer().put(Bukkit.getOfflinePlayer(s).getUniqueId(), new EconomyPlayer(Bukkit.getOfflinePlayer(s).getUniqueId()));
-        return true;
+        return createPlayerAccount(Bukkit.getOfflinePlayer(s));
     }
 
     @Override
     public boolean createPlayerAccount(OfflinePlayer offlinePlayer) {
-        if (this.plugin.getEconomyService().getEconomyPlayer().containsKey(offlinePlayer.getUniqueId())) {
+        if (this.plugin.getEconomyService().isEconomyPlayerExists(offlinePlayer.getUniqueId())) {
             return false;
         }
-        this.plugin.getEconomyService().getEconomyPlayer().put(offlinePlayer.getUniqueId(), new EconomyPlayer(offlinePlayer.getUniqueId()));
+        this.plugin.getEconomyService().insertEconomyPlayer(new EconomyPlayer(offlinePlayer.getUniqueId()));
         return true;
     }
 
     @Override
     public boolean createPlayerAccount(String s, String s1) {
-        if (this.plugin.getEconomyService().getEconomyPlayer().containsKey(Bukkit.getOfflinePlayer(s).getUniqueId())) {
-            return false;
-        }
-        this.plugin.getEconomyService().getEconomyPlayer().put(Bukkit.getOfflinePlayer(s).getUniqueId(), new EconomyPlayer(Bukkit.getOfflinePlayer(s).getUniqueId()));
-        return true;
+        return createPlayerAccount(s);
     }
 
     @Override
     public boolean createPlayerAccount(OfflinePlayer offlinePlayer, String s) {
-        if (this.plugin.getEconomyService().getEconomyPlayer().containsKey(offlinePlayer.getUniqueId())) {
-            return false;
-        }
-        this.plugin.getEconomyService().getEconomyPlayer().put(offlinePlayer.getUniqueId(), new EconomyPlayer(offlinePlayer.getUniqueId()));
-        return true;
+        return createPlayerAccount(offlinePlayer);
     }
 }

@@ -29,7 +29,7 @@ public class BalanceTopCommand implements CommandExecutor {
         sender.sendMessage(Message.getMessageWithPrefix(Message.LINE));
         sender.sendMessage(Leaderboard.getLeaderboardWithMessagePrefix(Leaderboard.HEADLINE));
         int place = 1;
-        for (EconomyTopPlayer topPlayer : this.plugin.getEconomyService().getEconomyTopPlayer()) {
+        for (EconomyTopPlayer topPlayer : plugin.getEconomyService().getEconomyTopPlayer()) {
             if (place < Leaderboard.SIZE.getValueAsInt()) {
                 if (place == 1) {
                     sender.sendMessage(StringUtil.replacePlaceholder(Leaderboard.getLeaderboardWithMessagePrefix(Leaderboard.PLACE_ONE),
