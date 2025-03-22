@@ -104,7 +104,7 @@ public final class ExtendedEconomy extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                economyService.getEconomyPlayer().values().forEach(economyPlayer -> economyService.updateEconomyPlayer(economyPlayer, false));
+                economyService.getEconomyPlayer().values().forEach(economyPlayer -> economyService.updateEconomyPlayer(economyPlayer));
             }
         }.runTaskTimerAsynchronously(this, 6000L, 6000L);
 
@@ -113,7 +113,7 @@ public final class ExtendedEconomy extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        economyService.getEconomyPlayer().values().forEach(economyPlayer -> economyService.updateEconomyPlayer(economyPlayer));
+        economyService.getEconomyPlayer().values().forEach(economyPlayer -> economyService.updateEconomyPlayer(economyPlayer, true));
         this.economyService.pushTopPlayers();
         this.databaseProvider.disconnect();
     }
