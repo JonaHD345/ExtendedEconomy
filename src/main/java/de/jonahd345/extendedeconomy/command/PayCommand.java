@@ -42,7 +42,8 @@ public class PayCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             double amount = Double.parseDouble(args[1]);
-            if (this.plugin.getEconomy().getBalance(player) < amount) {
+
+            if (plugin.getEconomy().getBalance(player) < amount) {
                 player.sendMessage(Message.getMessageWithPrefix(Message.NO_MONEY));
                 return true;
             }
@@ -54,17 +55,19 @@ public class PayCommand implements CommandExecutor, TabCompleter {
                 if (Bukkit.getOnlinePlayers().size() <= 1) {
                     return true;
                 }
-                if (this.plugin.getEconomy().getBalance(player) < amount * Bukkit.getOnlinePlayers().size()) {
+                int playerSize = Bukkit.getOnlinePlayers().size();
+
+                if (plugin.getEconomy().getBalance(player) < amount * playerSize) {
                     player.sendMessage(Message.getMessageWithPrefix(Message.NO_MONEY));
                     return true;
                 }
-                this.plugin.getEconomy().withdrawPlayer(player, amount * Bukkit.getOnlinePlayers().size());
-                for (Player players : Bukkit.getOnlinePlayers()) {
-                    if (!(player == players)) {
-                        this.plugin.getEconomy().depositPlayer(players, amount);
+                plugin.getEconomy().withdrawPlayer(player, amount * playerSize);
+                for (Player onlinePlayer : Bukkit.getOnlinePlayers()) {
+                    if (!(player == onlinePlayer)) {
+                        plugin.getEconomy().depositPlayer(onlinePlayer, amount);
                         player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.PAY),
-                                Map.of("%Player%", players.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
-                        players.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.GET_MONEY),
+                                Map.of("%Player%", onlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
+                        onlinePlayer.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.GET_MONEY),
                                 Map.of("%Player%", player.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
                     }
                 }
@@ -78,8 +81,8 @@ public class PayCommand implements CommandExecutor, TabCompleter {
                 player.sendMessage(Message.getMessageWithPrefix(Message.PAY_EXCEPTION));
                 return true;
             }
-            this.plugin.getEconomy().withdrawPlayer(player, amount);
-            this.plugin.getEconomy().depositPlayer(target, amount);
+            plugin.getEconomy().withdrawPlayer(player, amount);
+            plugin.getEconomy().depositPlayer(target, amount);
             player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.PAY),
                     Map.of("%Player%", target.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
             target.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.GET_MONEY),

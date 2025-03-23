@@ -49,15 +49,6 @@ public final class ExtendedEconomy extends JavaPlugin {
 
         LogFilter.registerFilter();
 
-        if (!(setupEconomy())) {
-            getLogger().info("No Vault was found! PLUGIN DISABLED!");
-            getServer().getPluginManager().disablePlugin(this);
-            return;
-        }
-        if (!(setupPlaceholderAPI())) {
-            getLogger().info("No PlaceholderAPI was found!");
-        }
-
         // Rename the old directory to the new one (EasyEconomy -> ExtendedEconomy)
         File directory = new File("plugins/EasyEconomy");
         if (directory.exists() && directory.isDirectory()) {
@@ -70,6 +61,15 @@ public final class ExtendedEconomy extends JavaPlugin {
 
         this.configService = new ConfigService(this);
         this.configService.loadConfig();
+
+        if (!(setupEconomy())) {
+            getLogger().info("No Vault was found! PLUGIN DISABLED!");
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        if (!(setupPlaceholderAPI())) {
+            getLogger().info("No PlaceholderAPI was found!");
+        }
 
         this.updateService = new UpdateService(this);
 
@@ -96,7 +96,7 @@ public final class ExtendedEconomy extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                getEconomyService().refreshTopPlayers();
+                economyService.refreshTopPlayers();
             }
         }.runTaskTimerAsynchronously(this, 6000L, 6000L);
 
@@ -104,7 +104,7 @@ public final class ExtendedEconomy extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                Bukkit.getOnlinePlayers().forEach(p -> getEconomyService().updateEconomyPlayer(p.getUniqueId()));
+                economyService.getEconomyPlayer().values().forEach(economyPlayer -> economyService.updateEconomyPlayer(economyPlayer));
             }
         }.runTaskTimerAsynchronously(this, 6000L, 6000L);
 
@@ -113,7 +113,7 @@ public final class ExtendedEconomy extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        Bukkit.getOnlinePlayers().forEach(player -> this.economyService.updateEconomyPlayer(player.getUniqueId()));
+        economyService.getEconomyPlayer().values().forEach(economyPlayer -> economyService.updateEconomyPlayer(economyPlayer, true));
         this.economyService.pushTopPlayers();
         this.databaseProvider.disconnect();
     }

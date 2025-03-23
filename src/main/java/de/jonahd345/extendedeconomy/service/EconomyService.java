@@ -45,71 +45,92 @@ public class EconomyService {
         this.convertPlayersYamlToSqlite();
     }
 
-    public void loadEconomyPlayer(UUID uuid) {
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-
-        try {
-            preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;");
-            preparedStatement.setString(1, uuid.toString());
-            resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                this.economyPlayer.put(uuid, new EconomyPlayer(uuid, resultSet.getDouble("coins")));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (resultSet != null) resultSet.close();
-                if (preparedStatement != null) preparedStatement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+    public EconomyPlayer getEconomyPlayer(UUID uuid) {
+        if (economyPlayer.containsKey(uuid)) {
+            return economyPlayer.get(uuid);
         }
-        if (!(this.economyPlayer.containsKey(uuid))) {
-            this.economyPlayer.put(uuid, new EconomyPlayer(uuid, Config.STARTCOINS.getValueAsDouble()));
-            this.pushEconomyPlayer(uuid);
+        return getEconomyPlayerSQL(uuid);
+    }
+
+    public void loadEconomyPlayer(UUID uuid) {
+        if (!economyPlayer.containsKey(uuid)) {
+            economyPlayer.put(uuid, getEconomyPlayerSQL(uuid));
         }
     }
 
-    public void pushEconomyPlayer(UUID uuid) {
-        PreparedStatement preparedStatement = null;
+    public void insertEconomyPlayer(EconomyPlayer economyPlayer) {
+        insertEconomyPlayerSQL(economyPlayer);
+    }
 
-        try {
-            preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);");
-            preparedStatement.setString(1, uuid.toString());
-            preparedStatement.setDouble(2, this.economyPlayer.get(uuid).getCoins());
-            preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (preparedStatement != null) preparedStatement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+    public void updateEconomyPlayer(EconomyPlayer economyPlayer) {
+        updateEconomyPlayerSQL(economyPlayer, false);
     }
 
     public void updateEconomyPlayer(UUID uuid) {
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
+        updateEconomyPlayer(getEconomyPlayer(uuid));
+    }
 
-        try {
-            preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("UPDATE extendedeconomy_coins SET coins = ? WHERE uuid = ?;");
-            preparedStatement.setDouble(1, this.economyPlayer.get(uuid).getCoins());
-            preparedStatement.setString(2, uuid.toString());
+    public void updateEconomyPlayer(EconomyPlayer economyPlayer, boolean removePlayerFromMap) {
+        updateEconomyPlayerSQL(economyPlayer, removePlayerFromMap);
+    }
+
+    public boolean isEconomyPlayerExists(UUID uuid) {
+        return economyPlayer.containsKey(uuid) || isEconomyPlayerExistsSQL(uuid);
+    }
+
+    private EconomyPlayer getEconomyPlayerSQL(UUID uuid) {
+        try (PreparedStatement preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
+            preparedStatement.setString(1, uuid.toString());
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new EconomyPlayer(uuid, resultSet.getDouble("coins"));
+                }
+            }
+        } catch (SQLException e) {
+            this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
+        }
+        // Not found in MySQL DB
+        EconomyPlayer newEconomyPlayer = new EconomyPlayer(uuid, Config.STARTCOINS.getValueAsDouble());
+
+        this.insertEconomyPlayerSQL(newEconomyPlayer);
+        return newEconomyPlayer;
+    }
+
+    private void insertEconomyPlayerSQL(EconomyPlayer economyPlayer) {
+        try (PreparedStatement preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);")) {
+            preparedStatement.setString(1, economyPlayer.getUuid().toString());
+            preparedStatement.setDouble(2, economyPlayer.getCoins());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (resultSet != null) resultSet.close();
-                if (preparedStatement != null) preparedStatement.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
+    }
+
+    private void updateEconomyPlayerSQL(EconomyPlayer economyPlayer, boolean removeFromMap) {
+        try (PreparedStatement preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("UPDATE extendedeconomy_coins SET coins = ? WHERE uuid = ?;")) {
+            preparedStatement.setDouble(1, economyPlayer.getCoins());
+            preparedStatement.setString(2, economyPlayer.getUuid().toString());
+            preparedStatement.executeUpdate();
+
+            if (removeFromMap) {
+                this.economyPlayer.remove(economyPlayer.getUuid());
+            }
+        } catch (SQLException e) {
+            this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
+        }
+    }
+
+    private boolean isEconomyPlayerExistsSQL(UUID uuid) {
+        try (PreparedStatement statement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
+            statement.setObject(1, uuid);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                return resultSet.next();
+            }
+        } catch (SQLException e) {
+            this.plugin.getLogger().severe("Error while checking if UUID is in database: " + e.getMessage());
+        }
+        return false;
     }
 
     private void convertPlayersYamlToSqlite() {
@@ -118,21 +139,14 @@ public class EconomyService {
 
         if (filePlayers.exists()) {
             for (String uuid : yamlConfigurationPlayers.getKeys(false)) {
-                this.economyPlayer.put(UUID.fromString(uuid), new EconomyPlayer(UUID.fromString(uuid), yamlConfigurationPlayers.getDouble(uuid)));
-                this.pushEconomyPlayer(UUID.fromString(uuid));
+                this.insertEconomyPlayerSQL(new EconomyPlayer(UUID.fromString(uuid), yamlConfigurationPlayers.getDouble(uuid)));
             }
             filePlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/coins/coinsOld.yml"));
         }
     }
 
-    private void convertTopPlayersYamlToJson() {
-        File fileTopPlayers = new File("plugins/" + this.plugin.getName() + "/leaderboard.yml");
 
-        if (fileTopPlayers.exists()) {
-            this.loadTopPlayersFromYaml(fileTopPlayers);
-            fileTopPlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/leaderboardOld.yml"));
-        }
-    }
+
 
     private void loadTopPlayersFromYaml(File file) {
         YamlConfiguration yamlConfigurationTopPlayers = YamlConfiguration.loadConfiguration(file);
@@ -181,5 +195,14 @@ public class EconomyService {
             this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
         this.economyTopPlayer.clear();
+    }
+
+    private void convertTopPlayersYamlToJson() {
+        File fileTopPlayers = new File("plugins/" + this.plugin.getName() + "/leaderboard.yml");
+
+        if (fileTopPlayers.exists()) {
+            this.loadTopPlayersFromYaml(fileTopPlayers);
+            fileTopPlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/leaderboardOld.yml"));
+        }
     }
 }

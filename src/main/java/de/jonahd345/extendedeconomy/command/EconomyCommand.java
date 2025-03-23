@@ -37,14 +37,12 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                 if (target == null) {
                     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
 
-                    this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
                     sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
-                            Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(offlinePlayer)))));
-                    this.plugin.getEconomyService().getEconomyPlayer().remove(offlinePlayer.getUniqueId());
+                            Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(plugin.getEconomy().getBalance(offlinePlayer)))));
                     return true;
                 }
                 sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
-                        Map.of("%Player%", target.getName(), "%Amount%", NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(target)))));
+                        Map.of("%Player%", target.getName(), "%Amount%", NumberUtil.formatNumber(plugin.getEconomy().getBalance(target)))));
             } else {
                 sender.sendMessage(Message.PREFIX + "§7Use /economy <set|add|take|info> <Player> <Amount>");
             }
@@ -57,19 +55,19 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 double amount = Double.parseDouble(args[2]);
+
                 if (target == null) {
                     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
-                    this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
-                    this.plugin.getEconomy().withdrawPlayer(offlinePlayer, this.plugin.getEconomy().getBalance(offlinePlayer));
-                    this.plugin.getEconomy().depositPlayer(offlinePlayer, amount);
-                    this.plugin.getEconomyService().updateEconomyPlayer(offlinePlayer.getUniqueId());
-                    this.plugin.getEconomyService().getEconomyPlayer().remove(offlinePlayer.getUniqueId());
+
+                    plugin.getEconomy().withdrawPlayer(offlinePlayer, plugin.getEconomy().getBalance(offlinePlayer));
+                    plugin.getEconomy().depositPlayer(offlinePlayer, amount);
+                    plugin.getEconomyService().updateEconomyPlayer(offlinePlayer.getUniqueId());
                     sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
                             Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
                     return true;
                 }
-                this.plugin.getEconomy().withdrawPlayer(target, this.plugin.getEconomy().getBalance(target));
-                this.plugin.getEconomy().depositPlayer(target, amount);
+                plugin.getEconomy().withdrawPlayer(target, plugin.getEconomy().getBalance(target));
+                plugin.getEconomy().depositPlayer(target, amount);
                 sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
                         Map.of("%Player%", target.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
             } else if (args[0].equalsIgnoreCase("add")) {
@@ -80,17 +78,16 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 double amount = Double.parseDouble(args[2]);
+
                 if (target == null) {
                     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
-                    this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
-                    this.plugin.getEconomy().depositPlayer(offlinePlayer, amount);
-                    this.plugin.getEconomyService().updateEconomyPlayer(offlinePlayer.getUniqueId());
-                    this.plugin.getEconomyService().getEconomyPlayer().remove(offlinePlayer.getUniqueId());
+                    plugin.getEconomy().depositPlayer(offlinePlayer, amount);
+                    plugin.getEconomyService().updateEconomyPlayer(offlinePlayer.getUniqueId());
                     sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.ECO_ADD),
                             Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
                     return true;
                 }
-                this.plugin.getEconomy().depositPlayer(target, amount);
+                plugin.getEconomy().depositPlayer(target, amount);
                 sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.ECO_ADD),
                         Map.of("%Player%", target.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
             } else if (args[0].equalsIgnoreCase("take")) {
@@ -101,25 +98,25 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 double amount = Double.parseDouble(args[2]);
+
                 if (target == null) {
                     OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
-                    this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
-                    if (this.plugin.getEconomy().getBalance(offlinePlayer) - amount < 0) {
+
+                    if (plugin.getEconomy().getBalance(offlinePlayer) - amount < 0) {
                         sender.sendMessage(Message.PREFIX + "§7You cannot set the balance below 0!");
                         return true;
                     }
-                    this.plugin.getEconomy().withdrawPlayer(offlinePlayer, amount);
-                    this.plugin.getEconomyService().updateEconomyPlayer(offlinePlayer.getUniqueId());
-                    this.plugin.getEconomyService().getEconomyPlayer().remove(offlinePlayer.getUniqueId());
+                    plugin.getEconomy().withdrawPlayer(offlinePlayer, amount);
+                    plugin.getEconomyService().updateEconomyPlayer(offlinePlayer.getUniqueId());
                     sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.ECO_TAKE),
                             Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
                     return true;
                 }
-                if (this.plugin.getEconomy().getBalance(target) - amount < 0) {
+                if (plugin.getEconomy().getBalance(target) - amount < 0) {
                     sender.sendMessage(Message.PREFIX + "§7You cannot set the balance below 0!");
                     return true;
                 }
-                this.plugin.getEconomy().withdrawPlayer(target, amount);
+                plugin.getEconomy().withdrawPlayer(target, amount);
                 sender.sendMessage(Message.getMessageWithPrefix(Message.ECO_TAKE).replace("%Player%", target.getName()).replace("%Amount%",
                         NumberUtil.formatNumber(amount)));
                 sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.ECO_TAKE),

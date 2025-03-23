@@ -34,7 +34,7 @@ public class MoneyCommand implements CommandExecutor {
         }
         if (args.length == 0) {
             player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY),
-                    Map.of("%Amount%", NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(player)))));
+                    Map.of("%Amount%", NumberUtil.formatNumber(plugin.getEconomy().getBalance(player)))));
         } else if (args.length == 1) {
             if (!(player.hasPermission("extendedeconomy.command.money.other"))) {
                 player.chat("/money");
@@ -44,14 +44,12 @@ public class MoneyCommand implements CommandExecutor {
 
             if (target == null) {
                 OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
-                this.plugin.getEconomyService().loadEconomyPlayer(offlinePlayer.getUniqueId());
                 player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
-                        Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(offlinePlayer)))));
-                this.plugin.getEconomyService().getEconomyPlayer().remove(offlinePlayer.getUniqueId());
+                        Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(plugin.getEconomy().getBalance(offlinePlayer)))));
                 return true;
             }
             player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
-                    Map.of("%Player%", target.getName(), "%Amount%", NumberUtil.formatNumber(this.plugin.getEconomy().getBalance(target)))));
+                    Map.of("%Player%", target.getName(), "%Amount%", NumberUtil.formatNumber(plugin.getEconomy().getBalance(target)))));
         }
         return false;
     }

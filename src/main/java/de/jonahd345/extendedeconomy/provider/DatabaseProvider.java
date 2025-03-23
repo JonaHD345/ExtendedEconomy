@@ -103,10 +103,8 @@ public class DatabaseProvider {
      * @param query the SQL query to execute
      */
     public void update(String query) {
-        try {
-            Statement statement = this.connection.createStatement();
+        try (Statement statement = this.connection.createStatement()) {
             statement.executeUpdate(query);
-            statement.close();
         } catch (SQLException e) {
             logger.severe("Failed execute update on database: " + e.getMessage());
         }
@@ -134,9 +132,7 @@ public class DatabaseProvider {
      * @return true if the table exists, false otherwise
      */
     public boolean isTablePresent(String tableName) {
-        ResultSet resultSet = this.getResult("SELECT COUNT(*) AS total FROM information_schema.tables WHERE table_schema = '" + database + "' AND table_name = '" + tableName + "';");
-
-        try {
+        try (ResultSet resultSet = this.getResult("SELECT COUNT(*) AS total FROM information_schema.tables WHERE table_schema = '" + database + "' AND table_name = '" + tableName + "';")) {
             if (resultSet != null && resultSet.next()) {
                 return resultSet.getInt("total") == 1;
             }
