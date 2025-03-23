@@ -117,8 +117,6 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                     return true;
                 }
                 plugin.getEconomy().withdrawPlayer(target, amount);
-                sender.sendMessage(Message.getMessageWithPrefix(Message.ECO_TAKE).replace("%Player%", target.getName()).replace("%Amount%",
-                        NumberUtil.formatNumber(amount)));
                 sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.ECO_TAKE),
                         Map.of("%Player%", target.getName(), "%Amount%", NumberUtil.formatNumber(amount))));
             } else {
