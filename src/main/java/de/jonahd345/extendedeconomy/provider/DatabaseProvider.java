@@ -68,7 +68,7 @@ public class DatabaseProvider {
 
             config.setMinimumIdle(1);
             config.setMaximumPoolSize(10);
-            config.setMaxLifetime(2700000);
+            config.setMaxLifetime(1800000);
             config.setConnectionTimeout(5000);
 
             try {
