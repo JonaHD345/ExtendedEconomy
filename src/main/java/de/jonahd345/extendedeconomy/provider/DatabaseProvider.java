@@ -66,10 +66,11 @@ public class DatabaseProvider {
                 config.setJdbcUrl("jdbc:sqlite:" + this.file);
             }
 
-            config.setMinimumIdle(1);
+            config.setMinimumIdle(2);
             config.setMaximumPoolSize(10);
             config.setMaxLifetime(1800000);
             config.setConnectionTimeout(5000);
+            config.setIdleTimeout(600000);
 
             try {
                 dataSource = new HikariDataSource(config);
