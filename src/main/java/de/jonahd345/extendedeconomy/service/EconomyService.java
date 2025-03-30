@@ -14,7 +14,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,16 +32,14 @@ public class EconomyService {
 
     private Gson gson;
 
-    private Type listTypeTopPlayers;
-
     public EconomyService(ExtendedEconomy plugin) {
         this.plugin = plugin;
         this.economyPlayer = new HashMap<>();
         this.economyTopPlayer = new ArrayList<>();
         this.gson = new Gson();
-        this.listTypeTopPlayers = new TypeToken<List<EconomyTopPlayer>>() {}.getType();
-        this.convertTopPlayersYamlToJson();
-        this.convertPlayersYamlToSqlite();
+
+        convertTopPlayersYamlToJson();
+        convertPlayersYamlToSqlite();
     }
 
     public EconomyPlayer getEconomyPlayer(UUID uuid) {
@@ -79,7 +76,7 @@ public class EconomyService {
     }
 
     private EconomyPlayer getEconomyPlayerSQL(UUID uuid) {
-        try (PreparedStatement preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
+        try (PreparedStatement preparedStatement = plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
             preparedStatement.setString(1, uuid.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
@@ -87,27 +84,27 @@ public class EconomyService {
                 }
             }
         } catch (SQLException e) {
-            this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
+            plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
-        // Not found in MySQL DB
+        // Not found in MySQL DB / SQLite DB, create a new EconomyPlayer with default coins
         EconomyPlayer newEconomyPlayer = new EconomyPlayer(uuid, Config.STARTCOINS.getValueAsDouble());
 
-        this.insertEconomyPlayerSQL(newEconomyPlayer);
+        insertEconomyPlayerSQL(newEconomyPlayer);
         return newEconomyPlayer;
     }
 
     private void insertEconomyPlayerSQL(EconomyPlayer economyPlayer) {
-        try (PreparedStatement preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);")) {
+        try (PreparedStatement preparedStatement = plugin.getDatabaseProvider().getConnection().prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);")) {
             preparedStatement.setString(1, economyPlayer.getUuid().toString());
             preparedStatement.setDouble(2, economyPlayer.getCoins());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
+            plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
     }
 
     private void updateEconomyPlayerSQL(EconomyPlayer economyPlayer, boolean removeFromMap) {
-        try (PreparedStatement preparedStatement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("UPDATE extendedeconomy_coins SET coins = ? WHERE uuid = ?;")) {
+        try (PreparedStatement preparedStatement = plugin.getDatabaseProvider().getConnection().prepareStatement("UPDATE extendedeconomy_coins SET coins = ? WHERE uuid = ?;")) {
             preparedStatement.setDouble(1, economyPlayer.getCoins());
             preparedStatement.setString(2, economyPlayer.getUuid().toString());
             preparedStatement.executeUpdate();
@@ -116,32 +113,32 @@ public class EconomyService {
                 this.economyPlayer.remove(economyPlayer.getUuid());
             }
         } catch (SQLException e) {
-            this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
+            plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
     }
 
     private boolean isEconomyPlayerExistsSQL(UUID uuid) {
-        try (PreparedStatement statement = this.plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
+        try (PreparedStatement statement = plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
             statement.setObject(1, uuid);
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next();
             }
         } catch (SQLException e) {
-            this.plugin.getLogger().severe("Error while checking if UUID is in database: " + e.getMessage());
+            plugin.getLogger().severe("Error while checking if UUID is in database: " + e.getMessage());
         }
         return false;
     }
 
     private void convertPlayersYamlToSqlite() {
-        File filePlayers = new File("plugins/" + this.plugin.getName() + "/coins/coins.yml");
+        File filePlayers = new File("plugins/" + plugin.getName() + "/coins/coins.yml");
         YamlConfiguration yamlConfigurationPlayers = YamlConfiguration.loadConfiguration(filePlayers);
 
         if (filePlayers.exists()) {
             for (String uuid : yamlConfigurationPlayers.getKeys(false)) {
-                this.insertEconomyPlayerSQL(new EconomyPlayer(UUID.fromString(uuid), yamlConfigurationPlayers.getDouble(uuid)));
+                insertEconomyPlayerSQL(new EconomyPlayer(UUID.fromString(uuid), yamlConfigurationPlayers.getDouble(uuid)));
             }
-            filePlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/coins/coinsOld.yml"));
+            filePlayers.renameTo(new File("plugins/" + plugin.getName() + "/coins/coinsOld.yml"));
         }
     }
 
@@ -154,29 +151,29 @@ public class EconomyService {
 
         if (yamlConfigurationTopPlayers.isSet("leaderboard")) {
             for (String economyTopPlayer : yamlConfigurationTopPlayers.getStringList("leaderboard")) {
-                list.add(this.plugin.getTopPlayerSerializer().getTopPlayer(economyTopPlayer));
+                list.add(plugin.getTopPlayerSerializer().getTopPlayer(economyTopPlayer));
             }
         }
         list = list.stream().sorted((o1, o2) -> Double.compare(o2.getCoins(), o1.getCoins())).collect(Collectors.toList());
-        this.economyTopPlayer.addAll(list);
+        economyTopPlayer.addAll(list);
     }
 
     public void loadTopPlayers() {
-        File file = new File("plugins/" + this.plugin.getName() + "/leaderboard.json");
+        File file = new File("plugins/" + plugin.getName() + "/leaderboard.json");
 
         if (!file.exists()) {
-            this.pushTopPlayers(); // Create the file if it doesn't exist
+            pushTopPlayers(); // Create the file if it doesn't exist
         }
         try (FileReader reader = new FileReader(file)) {
-            this.economyTopPlayer.addAll(this.gson.fromJson(reader, this.listTypeTopPlayers));
+            economyTopPlayer.addAll(gson.fromJson(reader, new TypeToken<List<EconomyTopPlayer>>() {}.getType()));
         } catch (IOException e) {
-            this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
+            plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
     }
 
     public void refreshTopPlayers() {
-        List<EconomyTopPlayer> list = this.economyTopPlayer;
-        List<EconomyPlayer> economyPlayers = new ArrayList<>(this.economyPlayer.values());
+        List<EconomyTopPlayer> list = economyTopPlayer;
+        List<EconomyPlayer> economyPlayers = new ArrayList<>(economyPlayer.values());
 
         for (EconomyPlayer economyPlayer : economyPlayers) {
             list.removeIf(economyTopPlayer -> economyTopPlayer.getUuid().equals(economyPlayer.getUuid()));
@@ -184,25 +181,25 @@ public class EconomyService {
             list.add(new EconomyTopPlayer(economyPlayer.getUuid(), new UUIDFetcher().getNameByUniqueId(economyPlayer.getUuid()), coins));
         }
         list = list.stream().sorted((o1, o2) -> Double.compare(o2.getCoins(), o1.getCoins())).collect(Collectors.toList());
-        this.economyTopPlayer.clear();
-        this.economyTopPlayer.addAll(list);
+        economyTopPlayer.clear();
+        economyTopPlayer.addAll(list);
     }
 
     public void pushTopPlayers() {
-        try (FileWriter writer = new FileWriter("plugins/" + this.plugin.getName() + "/leaderboard.json")) {
-            this.gson.toJson(this.economyTopPlayer, this.listTypeTopPlayers, writer);
+        try (FileWriter writer = new FileWriter("plugins/" + plugin.getName() + "/leaderboard.json")) {
+            gson.toJson(economyTopPlayer, new TypeToken<List<EconomyTopPlayer>>() {}.getType(), writer);
         } catch (IOException e) {
-            this.plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
+            plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
-        this.economyTopPlayer.clear();
+        economyTopPlayer.clear();
     }
 
     private void convertTopPlayersYamlToJson() {
-        File fileTopPlayers = new File("plugins/" + this.plugin.getName() + "/leaderboard.yml");
+        File fileTopPlayers = new File("plugins/" + plugin.getName() + "/leaderboard.yml");
 
         if (fileTopPlayers.exists()) {
-            this.loadTopPlayersFromYaml(fileTopPlayers);
-            fileTopPlayers.renameTo(new File("plugins/" + this.plugin.getName() + "/leaderboardOld.yml"));
+            loadTopPlayersFromYaml(fileTopPlayers);
+            fileTopPlayers.renameTo(new File("plugins/" + plugin.getName() + "/leaderboardOld.yml"));
         }
     }
 }
