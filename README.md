@@ -1,8 +1,12 @@
-# ExtendedEconomy <br>
-more info here:<br>
--> https://www.spigotmc.org/resources/extendedeconomy.106888/ <br><br>
+# ExtendedEconomy
+more info here:
+
+-> https://www.spigotmc.org/resources/extendedeconomy.106888/
+
 ## API Usage
 => in progress ...
+
 ### bstats:
-![bstats](https://bstats.org/signatures/bukkit/ExtendedEconomy.svg) <br><br>
+![bstats](https://bstats.org/signatures/bukkit/ExtendedEconomy.svg)
+
 coded with ❤️ by JonaHD345
