@@ -119,7 +119,7 @@ public class EconomyService {
 
     private boolean isEconomyPlayerExistsSQL(UUID uuid) {
         try (PreparedStatement statement = plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
-            statement.setObject(1, uuid);
+            statement.setString(1, uuid.toString());
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next();
