@@ -14,9 +14,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -76,14 +76,15 @@ public class EconomyService {
     }
 
     private EconomyPlayer getEconomyPlayerSQL(UUID uuid) {
-        try (PreparedStatement preparedStatement = plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
+        try (Connection connection = plugin.getDatabaseProvider().getDataSource().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
             preparedStatement.setString(1, uuid.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return new EconomyPlayer(uuid, resultSet.getDouble("coins"));
                 }
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
         // Not found in MySQL DB / SQLite DB, create a new EconomyPlayer with default coins
@@ -94,17 +95,19 @@ public class EconomyService {
     }
 
     private void insertEconomyPlayerSQL(EconomyPlayer economyPlayer) {
-        try (PreparedStatement preparedStatement = plugin.getDatabaseProvider().getConnection().prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);")) {
+        try (Connection connection = plugin.getDatabaseProvider().getDataSource().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);")) {
             preparedStatement.setString(1, economyPlayer.getUuid().toString());
             preparedStatement.setDouble(2, economyPlayer.getCoins());
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
     }
 
     private void updateEconomyPlayerSQL(EconomyPlayer economyPlayer, boolean removeFromMap) {
-        try (PreparedStatement preparedStatement = plugin.getDatabaseProvider().getConnection().prepareStatement("UPDATE extendedeconomy_coins SET coins = ? WHERE uuid = ?;")) {
+        try (Connection connection = plugin.getDatabaseProvider().getDataSource().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE extendedeconomy_coins SET coins = ? WHERE uuid = ?;")) {
             preparedStatement.setDouble(1, economyPlayer.getCoins());
             preparedStatement.setString(2, economyPlayer.getUuid().toString());
             preparedStatement.executeUpdate();
@@ -112,20 +115,20 @@ public class EconomyService {
             if (removeFromMap) {
                 this.economyPlayer.remove(economyPlayer.getUuid());
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
     }
 
     private boolean isEconomyPlayerExistsSQL(UUID uuid) {
-        try (PreparedStatement statement = plugin.getDatabaseProvider().getConnection().prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
+        try (Connection connection = plugin.getDatabaseProvider().getDataSource().getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
             statement.setString(1, uuid.toString());
-
             try (ResultSet resultSet = statement.executeQuery()) {
                 return resultSet.next();
             }
-        } catch (SQLException e) {
-            plugin.getLogger().severe("Error while checking if UUID is in database: " + e.getMessage());
+        } catch (Exception e) {
+            plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
         return false;
     }

@@ -18,8 +18,7 @@ public class DatabaseProvider {
     private String password;
     private String database;
     private String file;
-    @Getter
-    private Connection connection;
+    private HikariConfig config;
     @Getter
     private HikariDataSource dataSource;
     private Logger logger;
@@ -41,61 +40,55 @@ public class DatabaseProvider {
         this.database = database;
         this.logger = logger;
         this.instanceName = instanceName;
-        connect();
+        initConnection();
     }
 
     public DatabaseProvider(String file) {
         this.file = file;
-        this.connect();
+        initConnection();
     }
 
     /**
      * Establishes a connection to the database.
      */
-    public void connect() {
-        if (!isConnected()) {
-            HikariConfig config = new HikariConfig();
+    public void initConnection() {
+        config = new HikariConfig();
 
-            if (Config.MYSQL.getValueAsBoolean()) {
-                config.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=false&serverTimezone=UTC");
-                config.setUsername(user);
-                config.setPassword(password);
-                config.setPoolName(instanceName);
-            } else {
-                config.setDriverClassName("org.sqlite.JDBC");
-                config.setJdbcUrl("jdbc:sqlite:" + this.file);
-            }
-
-            config.setMinimumIdle(2);
-            config.setMaximumPoolSize(10);
-            config.setMaxLifetime(1800000);
-            config.setConnectionTimeout(5000);
-            config.setIdleTimeout(600000);
-
-            try {
-                dataSource = new HikariDataSource(config);
-                connection = dataSource.getConnection();
-            } catch (SQLException e) {
-                logger.severe("Failed to connect to database: " + e.getMessage());
-            }
+        if (Config.MYSQL.getValueAsBoolean()) {
+            config.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + database + "?useSSL=false");
+            config.setUsername(user);
+            config.setPassword(password);
+            config.setPoolName(instanceName);
+        } else {
+            config.setDriverClassName("org.sqlite.JDBC");
+            config.setJdbcUrl("jdbc:sqlite:" + this.file);
         }
+
+        config.setMinimumIdle(Config.MYSQL.getValueAsBoolean() ? 2 : 1); // Keep a small number of idle connections ready
+        config.setMaximumPoolSize(Config.MYSQL.getValueAsBoolean() ? 10 : 1); // Max connections; tune based on DB and app load
+
+        config.setMaxLifetime(1800000); // 30 minutes (shorter than DB's timeout to avoid sudden disconnects)
+        config.setConnectionTimeout(30000); // 30 seconds (good default)
+        config.setIdleTimeout(600000); // 10 minutes (only if minIdle < maxPoolSize)
+        config.setValidationTimeout(5000); // 5 seconds to validate the connection
+
+        config.setConnectionTestQuery("SELECT 1"); // Test query for SQL
+        config.setLeakDetectionThreshold(2000); // Log if connection is not returned in 2s (helps detect leaks)
+
+        dataSource = new HikariDataSource(config);
     }
 
     /**
      * Disconnects from the database.
      */
     public void disconnect() {
-        if (dataSource != null) {
-            dataSource.close();
-            dataSource = null;
-        }
-        if (connection != null) {
-            try {
-                connection.close();
-                connection = null;
-            } catch (SQLException e) {
-                logger.severe("Failed to disconnect from database: " + e.getMessage());
+        try {
+            if (dataSource != null) {
+                dataSource.close();
+                dataSource = null;
             }
+        } catch (Exception e) {
+            logger.severe("Failed to disconnect from database: " + e.getMessage());
         }
     }
 
@@ -104,27 +97,12 @@ public class DatabaseProvider {
      * @param query the SQL query to execute
      */
     public void update(String query) {
-        try (Statement statement = this.connection.createStatement()) {
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement()) {
             statement.executeUpdate(query);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             logger.severe("Failed execute update on database: " + e.getMessage());
         }
-    }
-
-    /**
-     * Executes a SELECT query and returns the result set.
-     * @param qry the SQL query to execute
-     * @return the result set of the query
-     */
-    public ResultSet getResult(String qry) {
-        if (isConnected()) {
-            try {
-                return this.connection.createStatement().executeQuery(qry);
-            } catch (SQLException e) {
-                logger.severe("Failed execute query on database: " + e.getMessage());
-            }
-        }
-        return null;
     }
 
     /**
@@ -133,21 +111,16 @@ public class DatabaseProvider {
      * @return true if the table exists, false otherwise
      */
     public boolean isTablePresent(String tableName) {
-        try (ResultSet resultSet = this.getResult("SELECT COUNT(*) AS total FROM information_schema.tables WHERE table_schema = '" + database + "' AND table_name = '" + tableName + "';")) {
-            if (resultSet != null && resultSet.next()) {
+        try (Connection connection = dataSource.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) AS total FROM information_schema.tables WHERE table_schema = '" + database + "' AND table_name = '" + tableName + "';")) {
+
+            if (resultSet.next()) {
                 return resultSet.getInt("total") == 1;
             }
         } catch (SQLException e) {
             logger.severe("Error checking if table exists: " + e.getMessage());
         }
         return false;
-    }
-
-    /**
-     * Checks if the connection to the database is established.
-     * @return true if connected, false otherwise
-     */
-    public boolean isConnected() {
-        return this.getConnection() != null;
     }
 }
