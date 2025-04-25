@@ -13,6 +13,7 @@ public enum Message {
     PLAYER_NOT_FOUND("&7Player not found!"),
     NO_NUMBER("&7You have to enter a number!"),
     NO_MONEY("&7You haven't enough money!"),
+    UNDER_MIN_WITHDRAW_AMOUNT("&7You have to pay more than %MinAmount%!"),
     PAY("&7You have %Player% payed %Amount%!"),
     GET_MONEY("&7You received %Amount% from %Player%!"),
     MONEY("&7You have %Amount% coins!"),

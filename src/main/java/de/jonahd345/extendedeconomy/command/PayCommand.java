@@ -1,6 +1,7 @@
 package de.jonahd345.extendedeconomy.command;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
+import de.jonahd345.extendedeconomy.config.Config;
 import de.jonahd345.extendedeconomy.config.Message;
 import de.jonahd345.extendedeconomy.util.NumberUtil;
 import de.jonahd345.extendedeconomy.util.StringUtil;
@@ -45,6 +46,11 @@ public class PayCommand implements CommandExecutor, TabCompleter {
 
             if (plugin.getEconomy().getBalance(player) < amount) {
                 player.sendMessage(Message.getMessageWithPrefix(Message.NO_MONEY));
+                return true;
+            }
+            if (Config.MIN_WITHDRAW_AMOUNT.getValueAsDouble() > amount) {
+                player.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.UNDER_MIN_WITHDRAW_AMOUNT),
+                        Map.of("%MinAmount%", NumberUtil.formatNumber(Config.MIN_WITHDRAW_AMOUNT.getValueAsDouble()))));
                 return true;
             }
             if (args[0].equalsIgnoreCase("*")) {
