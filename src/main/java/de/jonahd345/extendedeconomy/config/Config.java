@@ -7,6 +7,7 @@ import lombok.Setter;
 public enum Config {
     MYSQL(false),
     STARTCOINS(1000),
+    MIN_WITHDRAW_AMOUNT(100),
     UPDATE_NOTIFICATION(true);
 
     private final Object defaultValue;
