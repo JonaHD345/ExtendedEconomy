@@ -123,4 +123,12 @@ public class DatabaseProvider {
         }
         return false;
     }
+
+    public Connection getConnection() {
+        try {
+            return dataSource.getConnection();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

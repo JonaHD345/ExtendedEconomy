@@ -76,7 +76,7 @@ public class EconomyService {
     }
 
     private EconomyPlayer getEconomyPlayerSQL(UUID uuid) {
-        try (Connection connection = plugin.getDatabaseProvider().getDataSource().getConnection();
+        try (Connection connection = plugin.getDatabaseProvider().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
             preparedStatement.setString(1, uuid.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -95,7 +95,7 @@ public class EconomyService {
     }
 
     private void insertEconomyPlayerSQL(EconomyPlayer economyPlayer) {
-        try (Connection connection = plugin.getDatabaseProvider().getDataSource().getConnection();
+        try (Connection connection = plugin.getDatabaseProvider().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);")) {
             preparedStatement.setString(1, economyPlayer.getUuid().toString());
             preparedStatement.setDouble(2, economyPlayer.getCoins());
@@ -106,7 +106,7 @@ public class EconomyService {
     }
 
     private void updateEconomyPlayerSQL(EconomyPlayer economyPlayer, boolean removeFromMap) {
-        try (Connection connection = plugin.getDatabaseProvider().getDataSource().getConnection();
+        try (Connection connection = plugin.getDatabaseProvider().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("UPDATE extendedeconomy_coins SET coins = ? WHERE uuid = ?;")) {
             preparedStatement.setDouble(1, economyPlayer.getCoins());
             preparedStatement.setString(2, economyPlayer.getUuid().toString());
@@ -121,7 +121,7 @@ public class EconomyService {
     }
 
     private boolean isEconomyPlayerExistsSQL(UUID uuid) {
-        try (Connection connection = plugin.getDatabaseProvider().getDataSource().getConnection();
+        try (Connection connection = plugin.getDatabaseProvider().getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT * FROM extendedeconomy_coins WHERE uuid = ?;")) {
             statement.setString(1, uuid.toString());
             try (ResultSet resultSet = statement.executeQuery()) {
