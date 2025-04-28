@@ -124,6 +124,10 @@ public class DatabaseProvider {
         return false;
     }
 
+    /**
+     * Provides a connection to the database.
+     * @return a {@link Connection} from the HikariDataSource or null if an error occurs
+     */
     public Connection getConnection() {
         try {
             return dataSource.getConnection();
