@@ -125,14 +125,13 @@ public class DatabaseProvider {
     }
 
     /**
-     * Checks if a column with a specific data type exists in a table.
+     * Checks if a column exists in a table.
      *
      * @param tableName   the table name
      * @param columnName  the column name
-     * @param expectedSqlType java.sql.Types (e.g. Types.VARCHAR, Types.INTEGER)
-     * @return true if the column exists and has the expected data type
+     * @return true if the column exists
      */
-    public boolean isColumnWithTypePresent(String tableName, String columnName, int expectedSqlType) {
+    public boolean isColumnPresent(String tableName, String columnName) {
         try (Connection connection = dataSource.getConnection()) {
 
             DatabaseMetaData metaData = connection.getMetaData();
@@ -143,10 +142,7 @@ public class DatabaseProvider {
                     tableName,
                     columnName)) {
 
-                if (columns.next()) {
-                    int actualType = columns.getInt("DATA_TYPE");
-                    return actualType == expectedSqlType;
-                }
+                return columns.next();
             }
 
         } catch (SQLException e) {
