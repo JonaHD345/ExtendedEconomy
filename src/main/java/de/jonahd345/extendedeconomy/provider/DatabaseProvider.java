@@ -125,6 +125,38 @@ public class DatabaseProvider {
     }
 
     /**
+     * Checks if a column with a specific data type exists in a table.
+     *
+     * @param tableName   the table name
+     * @param columnName  the column name
+     * @param expectedSqlType java.sql.Types (e.g. Types.VARCHAR, Types.INTEGER)
+     * @return true if the column exists and has the expected data type
+     */
+    public boolean isColumnWithTypePresent(String tableName, String columnName, int expectedSqlType) {
+        try (Connection connection = dataSource.getConnection()) {
+
+            DatabaseMetaData metaData = connection.getMetaData();
+
+            try (ResultSet columns = metaData.getColumns(
+                    connection.getCatalog(), // catalog (MySQL), null for SQLite
+                    null,                    // schema
+                    tableName,
+                    columnName)) {
+
+                if (columns.next()) {
+                    int actualType = columns.getInt("DATA_TYPE");
+                    return actualType == expectedSqlType;
+                }
+            }
+
+        } catch (SQLException e) {
+            logger.severe("Error checking column type: " + e.getMessage());
+        }
+
+        return false;
+    }
+
+    /**
      * Provides a connection to the database.
      * @return a {@link Connection} from the HikariDataSource or null if an error occurs
      */
