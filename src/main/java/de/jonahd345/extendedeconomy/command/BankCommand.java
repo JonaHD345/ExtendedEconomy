@@ -5,14 +5,18 @@ import de.jonahd345.extendedeconomy.config.Message;
 import de.jonahd345.extendedeconomy.model.EconomyPlayer;
 import de.jonahd345.extendedeconomy.util.NumberUtil;
 import de.jonahd345.extendedeconomy.util.StringUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
-public class BankCommand implements CommandExecutor {
+public class BankCommand implements CommandExecutor, TabCompleter {
     private ExtendedEconomy plugin;
 
     public BankCommand(ExtendedEconomy plugin) {
@@ -82,5 +86,29 @@ public class BankCommand implements CommandExecutor {
                     Map.of("%Amount%", NumberUtil.formatNumber(economyPlayer.getBank()))));
         }
         return false;
+    }
+
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        ArrayList<String> subcommand = new ArrayList<>();
+
+        if (sender.hasPermission("extendedeconomy.command.bank") || sender.hasPermission("extendedeconomy.admin")) {
+            if (args.length == 1) {
+                subcommand.add("deposit");
+                subcommand.add("withdraw");
+                subcommand.add("help");
+                subcommand.add("info");
+            }
+        }
+        ArrayList<String> cl = new ArrayList<>();
+        String currentarg = args[args.length - 1].toLowerCase();
+
+        for(String s1 : subcommand) {
+            String s2 = s1.toLowerCase();
+            if(s2.startsWith(currentarg)) {
+                cl.add(s1);
+            }
+        }
+        return cl;
     }
 }
