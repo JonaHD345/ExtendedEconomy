@@ -43,6 +43,8 @@ public class ExpansionManager extends PlaceholderExpansion {
         switch (parameter.toLowerCase()) {
             case "user_balance":
                 return NumberUtil.formatNumber(plugin.getEconomyService().getEconomyPlayer(player.getUniqueId()).getCoins());
+            case "user_bank_balance":
+                return NumberUtil.formatNumber(plugin.getEconomyService().getEconomyPlayer(player.getUniqueId()).getBank());
             case "leaderboard_headline":
                 return Leaderboard.HEADLINE.getValueAsString();
             case "leaderboard_blank":
