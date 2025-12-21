@@ -99,7 +99,7 @@ public class EconomyService {
              PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?,?);")) {
             preparedStatement.setString(1, economyPlayer.getUuid().toString());
             preparedStatement.setDouble(2, economyPlayer.getCoins());
-            preparedStatement.setDouble(2, economyPlayer.getBank());
+            preparedStatement.setDouble(3, economyPlayer.getBank());
             preparedStatement.executeUpdate();
         } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
