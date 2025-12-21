@@ -46,6 +46,7 @@ permissions:
           extendedeconomy.command.money: true
           extendedeconomy.command.pay: true
           extendedeconomy.command.balancetop: true
+          extendedeconomy.command.bank: true
   extendedeconomy.command.economy:
         description: Give the player the permission to use the economy command.
         default: false
