@@ -18,6 +18,7 @@ public class EconomyPlayer {
     public EconomyPlayer(UUID uuid, double coins, double bank) {
         this.uuid = uuid;
         this.coins = coins;
+        this.bank = bank;
     }
 
     public EconomyPlayer(UUID uuid) {
