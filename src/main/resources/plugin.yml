@@ -29,6 +29,9 @@ commands:
   pay:
     permission: extendedeconomy.command.pay
     description: Pay other players your money.
+  bank:
+    permission: extendedeconomy.command.bank
+    description: Deposit and withdraw money from your bank account.
   balancetop:
     aliases: [baltop, leaderboard]
     permission: extendedeconomy.command.balancetop
@@ -54,4 +57,7 @@ permissions:
         default: false
   extendedeconomy.command.balancetop:
         description: Give the player the permission to use the balancetop command.
+        default: false
+  extendedeconomy.command.bank:
+        description: Give the player the permission to use the bank command.
         default: false
