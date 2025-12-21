@@ -1,5 +1,5 @@
 name: ExtendedEconomy
-version: 3.6
+version: 4.0
 main: de.jonahd345.extendedeconomy.ExtendedEconomy
 api-version: 1.17
 author: JonaHD345
@@ -29,6 +29,9 @@ commands:
   pay:
     permission: extendedeconomy.command.pay
     description: Pay other players your money.
+  bank:
+    permission: extendedeconomy.command.bank
+    description: Deposit and withdraw money from your bank account.
   balancetop:
     aliases: [baltop, leaderboard]
     permission: extendedeconomy.command.balancetop
@@ -43,6 +46,7 @@ permissions:
           extendedeconomy.command.money: true
           extendedeconomy.command.pay: true
           extendedeconomy.command.balancetop: true
+          extendedeconomy.command.bank: true
   extendedeconomy.command.economy:
         description: Give the player the permission to use the economy command.
         default: false
@@ -54,4 +58,7 @@ permissions:
         default: false
   extendedeconomy.command.balancetop:
         description: Give the player the permission to use the balancetop command.
+        default: false
+  extendedeconomy.command.bank:
+        description: Give the player the permission to use the bank command.
         default: false

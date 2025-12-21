@@ -22,6 +22,11 @@ public enum Message {
     ECO_SET("&7You set %Player%'s balance %Amount%!"),
     ECO_ADD("&7You add %Player%'s balance %Amount%!"),
     ECO_TAKE("&7You took %Amount% from %Player%!"),
+    BANK_DEPOSIT("&7You deposited %Amount% to your bank!"),
+    BANK_WITHDRAW("&7You withdrew %Amount% from your bank!"),
+    BANK_MONEY("&7You have %Amount% coins in your bank account!"),
+    BANK_NO_MONEY("&7You haven't enough money in your bank account!"),
+    BANK_HELP("&7Use /bank <deposit|withdraw> <Amount> or /bank <info>"),
     ERROR("&4ERROR"),
     LINE("&8&m---------------------------------------");
 

@@ -73,6 +73,7 @@ public final class ExtendedEconomy extends JavaPlugin {
 
         this.updateService = new UpdateService(this);
 
+        /* Database Initialization */
         if (Config.MYSQL.getValueAsBoolean()) {
             this.databaseProvider = new DatabaseProvider(MySql.HOST.getValue(), MySql.PORT.getValue(), MySql.USER.getValue(), MySql.PASSWORD.getValue(), MySql.DATABASE.getValue(), getLogger(), getDescription().getName());
             if (this.databaseProvider.isTablePresent("easyeconomy_coins")) {
@@ -82,7 +83,12 @@ public final class ExtendedEconomy extends JavaPlugin {
             FileUtil.createDirectory(new File("plugins/" + this.getName() + "/coins"));
             this.databaseProvider = new DatabaseProvider("plugins/" + this.getName() + "/coins/coins.db");
         }
-        this.databaseProvider.update("CREATE TABLE IF NOT EXISTS extendedeconomy_coins(uuid VARCHAR(128) PRIMARY KEY, coins VARCHAR(128));");
+        this.databaseProvider.update("CREATE TABLE IF NOT EXISTS extendedeconomy_coins(uuid VARCHAR(128) PRIMARY KEY, coins VARCHAR(128), bank VARCHAR(128));");
+
+        // V 4.0
+        if (!databaseProvider.isColumnPresent("extendedeconomy_coins", "bank")) {
+            databaseProvider.update("ALTER TABLE extendedeconomy_coins ADD COLUMN bank VARCHAR(128);");
+        }
 
         this.topPlayerSerializer = new TopPlayerSerializer();
 
@@ -128,6 +134,7 @@ public final class ExtendedEconomy extends JavaPlugin {
         getCommand("extendedeconomy").setExecutor(new ExtendedEconomyCommand(this));
         getCommand("economy").setExecutor(new EconomyCommand(this));
         getCommand("money").setExecutor(new MoneyCommand(this));
+        getCommand("bank").setExecutor(new BankCommand(this));
         getCommand("pay").setExecutor(new PayCommand(this));
         getCommand("balancetop").setExecutor(new BalanceTopCommand(this));
     }

@@ -12,12 +12,15 @@ public class EconomyPlayer {
     @Setter
     private double coins;
 
-    public EconomyPlayer(UUID uuid, double coins) {
+    @Setter
+    private double bank;
+
+    public EconomyPlayer(UUID uuid, double coins, double bank) {
         this.uuid = uuid;
         this.coins = coins;
     }
 
     public EconomyPlayer(UUID uuid) {
-        this(uuid, 0L);
+        this(uuid, 0L, 0L);
     }
 }

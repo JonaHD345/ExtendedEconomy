@@ -81,14 +81,14 @@ public class EconomyService {
             preparedStatement.setString(1, uuid.toString());
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    return new EconomyPlayer(uuid, resultSet.getDouble("coins"));
+                    return new EconomyPlayer(uuid, resultSet.getDouble("coins"), resultSet.getDouble("bank"));
                 }
             }
         } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
         // Not found in MySQL DB / SQLite DB, create a new EconomyPlayer with default coins
-        EconomyPlayer newEconomyPlayer = new EconomyPlayer(uuid, Config.STARTCOINS.getValueAsDouble());
+        EconomyPlayer newEconomyPlayer = new EconomyPlayer(uuid, Config.STARTCOINS.getValueAsDouble(), Config.BANK_STARTCOINS.getValueAsDouble());
 
         insertEconomyPlayerSQL(newEconomyPlayer);
         return newEconomyPlayer;
@@ -96,9 +96,10 @@ public class EconomyService {
 
     private void insertEconomyPlayerSQL(EconomyPlayer economyPlayer) {
         try (Connection connection = plugin.getDatabaseProvider().getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?);")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO extendedeconomy_coins VALUES(?,?,?);")) {
             preparedStatement.setString(1, economyPlayer.getUuid().toString());
             preparedStatement.setDouble(2, economyPlayer.getCoins());
+            preparedStatement.setDouble(2, economyPlayer.getBank());
             preparedStatement.executeUpdate();
         } catch (Exception e) {
             plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
@@ -107,9 +108,10 @@ public class EconomyService {
 
     private void updateEconomyPlayerSQL(EconomyPlayer economyPlayer, boolean removeFromMap) {
         try (Connection connection = plugin.getDatabaseProvider().getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE extendedeconomy_coins SET coins = ? WHERE uuid = ?;")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE extendedeconomy_coins SET coins = ?, bank = ? WHERE uuid = ?;")) {
             preparedStatement.setDouble(1, economyPlayer.getCoins());
-            preparedStatement.setString(2, economyPlayer.getUuid().toString());
+            preparedStatement.setDouble(2, economyPlayer.getBank());
+            preparedStatement.setString(3, economyPlayer.getUuid().toString());
             preparedStatement.executeUpdate();
 
             if (removeFromMap) {
@@ -139,7 +141,7 @@ public class EconomyService {
 
         if (filePlayers.exists()) {
             for (String uuid : yamlConfigurationPlayers.getKeys(false)) {
-                insertEconomyPlayerSQL(new EconomyPlayer(UUID.fromString(uuid), yamlConfigurationPlayers.getDouble(uuid)));
+                insertEconomyPlayerSQL(new EconomyPlayer(UUID.fromString(uuid), yamlConfigurationPlayers.getDouble(uuid), 0L));
             }
             filePlayers.renameTo(new File("plugins/" + plugin.getName() + "/coins/coinsOld.yml"));
         }
