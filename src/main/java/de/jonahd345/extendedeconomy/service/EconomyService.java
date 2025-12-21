@@ -110,8 +110,8 @@ public class EconomyService {
         try (Connection connection = plugin.getDatabaseProvider().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("UPDATE extendedeconomy_coins SET coins = ?, bank = ? WHERE uuid = ?;")) {
             preparedStatement.setDouble(1, economyPlayer.getCoins());
-            preparedStatement.setDouble(1, economyPlayer.getBank());
-            preparedStatement.setString(2, economyPlayer.getUuid().toString());
+            preparedStatement.setDouble(2, economyPlayer.getBank());
+            preparedStatement.setString(3, economyPlayer.getUuid().toString());
             preparedStatement.executeUpdate();
 
             if (removeFromMap) {
