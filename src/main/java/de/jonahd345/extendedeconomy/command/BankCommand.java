@@ -62,7 +62,7 @@ public class BankCommand implements CommandExecutor, TabCompleter {
                 double amount = Double.parseDouble(args[1]);
 
                 if (economyPlayer.getBank() < amount) {
-                    player.sendMessage("");
+                    player.sendMessage(Message.getMessageWithPrefix(Message.BANK_NO_MONEY));
                     return true;
                 }
                 plugin.getEconomy().depositPlayer(player, amount);
