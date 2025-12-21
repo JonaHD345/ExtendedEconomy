@@ -2,9 +2,12 @@ package de.jonahd345.extendedeconomy.manager;
 
 import de.jonahd345.extendedeconomy.ExtendedEconomy;
 import de.jonahd345.extendedeconomy.config.Leaderboard;
+import de.jonahd345.extendedeconomy.model.EconomyTopPlayer;
 import de.jonahd345.extendedeconomy.util.NumberUtil;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
+
+import java.util.List;
 
 public class ExpansionManager extends PlaceholderExpansion {
     private ExtendedEconomy plugin;
@@ -23,49 +26,59 @@ public class ExpansionManager extends PlaceholderExpansion {
 
     @Override
     public String getAuthor() {
-        return this.plugin.getDescription().getAuthors().get(0);
+        return plugin.getDescription().getAuthors().get(0);
     }
 
     @Override
     public String getVersion() {
-        return this.plugin.getDescription().getVersion();
+        return plugin.getDescription().getVersion();
     }
 
     @Override
     public String onRequest(OfflinePlayer player, String parameter) {
-        if(parameter.equalsIgnoreCase("user_balance")) {
-            return NumberUtil.formatNumber(this.plugin.getEconomyService().getEconomyPlayer().get(player.getUniqueId()).getCoins());
-        }
-        if (parameter.equalsIgnoreCase("leaderboard_headline")) {
-            return Leaderboard.HEADLINE.getValueAsString();
-        }
-        if (parameter.equalsIgnoreCase("leaderboard_blank")) {
-            return " ";
-        }
-        if (parameter.contains("leaderboard_place_")) {
-            if (NumberUtil.isInt(parameter.split("_")[2]) &&
-                    this.plugin.getEconomyService().getEconomyTopPlayer().size() >= Integer.parseInt(parameter.split("_")[2])) {
-                if (Integer.parseInt(parameter.split("_")[2]) <= 3) {
-                    return Leaderboard.valueOf("place_" + this.place[Integer.parseInt(parameter.split("_")[2]) - 1]).getValueAsString().replace("%Player%",
-                            this.plugin.getEconomyService().getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getName()).replace("%Amount%",
-                            NumberUtil.formatNumber(this.plugin.getEconomyService().getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getCoins()));
-                } else {
-                    return Leaderboard.PLACE_OTHER.getValueAsString().replace("%Player%",
-                                    this.plugin.getEconomyService().getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getName()).replace("%Amount%",
-                                    NumberUtil.formatNumber(this.plugin.getEconomyService().getEconomyTopPlayer().get(Integer.parseInt(parameter.split("_")[2]) - 1).getCoins()))
-                            .replace("%Place%", parameter.split("_")[2]);
-                }
-            } else {
-                if (Integer.parseInt(parameter.split("_")[2]) <= 3) {
-                    return Leaderboard.valueOf("place_" + this.place[Integer.parseInt(parameter.split("_")[2]) - 1]).getValueAsString().replace("%Player%", "null")
-                            .replace("%Amount%", "0").replace("%Place%", parameter.split("_")[2]);
-                } else {
-                    return Leaderboard.PLACE_OTHER.getValueAsString().replace("%Player%", "null")
-                            .replace("%Amount%", "0").replace("%Place%", parameter.split("_")[2]);
-                }
-            }
+        if (parameter == null || player == null) {
+            return "%" + getIdentifier() + "_" + parameter + "%";
         }
 
-        return "%" + getIdentifier() + "_" + parameter + "%";
+        switch (parameter.toLowerCase()) {
+            case "user_balance":
+                return NumberUtil.formatNumber(plugin.getEconomyService().getEconomyPlayer(player.getUniqueId()).getCoins());
+            case "user_bank_balance":
+                return NumberUtil.formatNumber(plugin.getEconomyService().getEconomyPlayer(player.getUniqueId()).getBank());
+            case "leaderboard_headline":
+                return Leaderboard.HEADLINE.getValueAsString();
+            case "leaderboard_blank":
+                return " ";
+            default:
+                break;
+        }
+
+        // leaderboard_place_<n>
+        String prefix = "leaderboard_place_";
+
+        if (!parameter.toLowerCase().startsWith(prefix)) {
+            return "%" + getIdentifier() + "_" + parameter + "%";
+        }
+        String placeStr = parameter.substring(prefix.length());
+
+        if (!NumberUtil.isInt(placeStr)) {
+            return "%" + getIdentifier() + "_" + parameter + "%";
+        }
+        int place = Integer.parseInt(placeStr);
+        boolean top3 = place <= 3;
+        String template = top3 ? Leaderboard.valueOf("place_" + this.place[place - 1]).getValueAsString() : Leaderboard.PLACE_OTHER.getValueAsString();
+        // get data
+        String playerName = "null";
+        String amount = "0";
+        List<EconomyTopPlayer> topPlayers = plugin.getEconomyService().getEconomyTopPlayer();
+
+        if (place >= 1 && topPlayers.size() >= place) {
+            EconomyTopPlayer econPlayer = topPlayers.get(place - 1);
+
+            playerName = econPlayer.getName();
+            amount = NumberUtil.formatNumber(econPlayer.getCoins());
+        }
+        return template.replace("%Player%", playerName).replace("%Amount%", amount).replace("%Place%", String.valueOf(place));
     }
+
 }
