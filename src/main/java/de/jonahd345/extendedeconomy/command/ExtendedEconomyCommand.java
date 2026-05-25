@@ -27,7 +27,7 @@ public class ExtendedEconomyCommand implements CommandExecutor, TabCompleter {
                     sender.sendMessage(Message.getMessageWithPrefix(Message.LINE));
                     sender.sendMessage(Message.PREFIX + "§acommands§8:");
                     sender.sendMessage(Message.PREFIX +
-                            "  §8• §7/§extendedeconomy §7<§ahelp§7|§areload§7>");
+                            "  §8• §7/§aextendedeconomy §7<§ahelp§7|§areload§7>");
                     sender.sendMessage(Message.PREFIX +
                             "  §8• §7/§aeconomy §7<§aset§7|§aadd§7|§atake§7|§ainfo§7> <§aPlayer§7> <§aAmount§7>\n§8(§7permission§8: §aextendedeconomy.command.economy§8)");
                     sender.sendMessage(Message.PREFIX +
@@ -78,8 +78,8 @@ public class ExtendedEconomyCommand implements CommandExecutor, TabCompleter {
         ArrayList<String> subcommand = new ArrayList<>();
         if (args.length == 1) {
             subcommand.add("help");
-            if (sender.hasPermission("easyeconomy.admin")) {
-
+            if (sender.hasPermission("extendedeconomy.admin")) {
+                subcommand.add("reload");
             }
         }
         ArrayList<String> cl = new ArrayList<>();
