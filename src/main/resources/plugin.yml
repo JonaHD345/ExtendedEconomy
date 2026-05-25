@@ -32,6 +32,9 @@ commands:
   bank:
     permission: extendedeconomy.command.bank
     description: Deposit and withdraw money from your bank account.
+  bankadmin:
+    permission: extendedeconomy.command.bankadmin
+    description: Admin command for managing player bank accounts.
   balancetop:
     aliases: [baltop, leaderboard]
     permission: extendedeconomy.command.balancetop
@@ -47,6 +50,7 @@ permissions:
           extendedeconomy.command.pay: true
           extendedeconomy.command.balancetop: true
           extendedeconomy.command.bank: true
+          extendedeconomy.command.bankadmin: true
   extendedeconomy.command.economy:
         description: Give the player the permission to use the economy command.
         default: false
@@ -62,3 +66,6 @@ permissions:
   extendedeconomy.command.bank:
         description: Give the player the permission to use the bank command.
         default: false
+  extendedeconomy.command.bankadmin:
+    description: Give the player the permission to use the bank admin command.
+    default: false

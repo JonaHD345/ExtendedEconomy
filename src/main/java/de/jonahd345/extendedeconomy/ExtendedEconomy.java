@@ -135,6 +135,7 @@ public final class ExtendedEconomy extends JavaPlugin {
         getCommand("economy").setExecutor(new EconomyCommand(this));
         getCommand("money").setExecutor(new MoneyCommand(this));
         getCommand("bank").setExecutor(new BankCommand(this));
+        getCommand("bankadmin").setExecutor(new BankAdminCommand(this));
         getCommand("pay").setExecutor(new PayCommand(this));
         getCommand("balancetop").setExecutor(new BalanceTopCommand(this));
     }
