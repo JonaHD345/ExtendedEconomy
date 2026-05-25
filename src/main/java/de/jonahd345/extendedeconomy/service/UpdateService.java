@@ -7,6 +7,7 @@ import de.jonahd345.xenfororesourcemanagerapi.XenforoResourceManagerAPI;
 import de.jonahd345.xenfororesourcemanagerapi.model.Resource;
 import lombok.Getter;
 
+import org.bukkit.Bukkit;
 import java.util.Arrays;
 
 public class UpdateService {
@@ -17,10 +18,10 @@ public class UpdateService {
     private String  pluginVersion;
 
     @Getter
-    private String spigotVersion;
+    private volatile String spigotVersion;
 
     @Getter
-    private boolean updateAvailable;
+    private volatile boolean updateAvailable;
 
     public UpdateService(ExtendedEconomy plugin) {
         this.plugin = plugin;
@@ -31,20 +32,22 @@ public class UpdateService {
     }
 
     public void checkForUpdate() {
-        Resource resource = this.xenforoResourceManagerAPI.getResource(106888);
+        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+            Resource resource = this.xenforoResourceManagerAPI.getResource(106888);
 
-        if (resource != null) {
-            this.spigotVersion = resource.getCurrentVersion();
-        } else {
-            this.spigotVersion = this.pluginVersion;
-        }
-        if (this.spigotVersion != null && !this.spigotVersion.isEmpty()) {
-            this.updateAvailable = this.spigotIsNewer();
-            if (this.updateAvailable && Config.UPDATE_NOTIFICATION.getValueAsBoolean()) {
-                this.plugin.getLogger().info(Message.PREFIX.getMessage() + "§7The new Version from ExtendedEconomy v" +
-                        this.spigotVersion + " is available at: https://www.spigotmc.org/resources/extendedeconomy.106888/");
+            if (resource != null) {
+                this.spigotVersion = resource.getCurrentVersion();
+            } else {
+                this.spigotVersion = this.pluginVersion;
             }
-        }
+            if (this.spigotVersion != null && !this.spigotVersion.isEmpty()) {
+                this.updateAvailable = this.spigotIsNewer();
+                if (this.updateAvailable && Config.UPDATE_NOTIFICATION.getValueAsBoolean()) {
+                    this.plugin.getLogger().info(Message.PREFIX.getMessage() + "§7The new Version from ExtendedEconomy v" +
+                            this.spigotVersion + " is available at: https://www.spigotmc.org/resources/extendedeconomy.106888/");
+                }
+            }
+        });
     }
 
     private boolean spigotIsNewer() {

@@ -18,6 +18,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -28,13 +29,13 @@ public class EconomyService {
     private Map<UUID, EconomyPlayer> economyPlayer;
 
     @Getter
-    private List<EconomyTopPlayer> economyTopPlayer;
+    private volatile List<EconomyTopPlayer> economyTopPlayer;
 
     private Gson gson;
 
     public EconomyService(ExtendedEconomy plugin) {
         this.plugin = plugin;
-        this.economyPlayer = new HashMap<>();
+        this.economyPlayer = new ConcurrentHashMap<>();
         this.economyTopPlayer = new ArrayList<>();
         this.gson = new Gson();
 
@@ -160,7 +161,9 @@ public class EconomyService {
             }
         }
         list = list.stream().sorted((o1, o2) -> Double.compare(o2.getCoins(), o1.getCoins())).collect(Collectors.toList());
-        economyTopPlayer.addAll(list);
+        List<EconomyTopPlayer> current = new ArrayList<>(this.economyTopPlayer);
+        current.addAll(list);
+        this.economyTopPlayer = current;
     }
 
     public void loadTopPlayers() {
@@ -170,15 +173,21 @@ public class EconomyService {
             pushTopPlayers(); // Create the file if it doesn't exist
         }
         try (FileReader reader = new FileReader(file)) {
-            economyTopPlayer.addAll(gson.fromJson(reader, new TypeToken<List<EconomyTopPlayer>>() {}.getType()));
+            List<EconomyTopPlayer> loaded = gson.fromJson(reader, new TypeToken<List<EconomyTopPlayer>>() {}.getType());
+            if (loaded != null) {
+                this.economyTopPlayer = new ArrayList<>(loaded);
+            } else {
+                this.economyTopPlayer = new ArrayList<>();
+            }
         } catch (IOException e) {
             plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
+            this.economyTopPlayer = new ArrayList<>();
         }
     }
 
     public void refreshTopPlayers() {
-        List<EconomyTopPlayer> list = economyTopPlayer;
-        List<EconomyPlayer> economyPlayers = new ArrayList<>(economyPlayer.values());
+        List<EconomyTopPlayer> list = new ArrayList<>(this.economyTopPlayer);
+        List<EconomyPlayer> economyPlayers = new ArrayList<>(this.economyPlayer.values());
 
         for (EconomyPlayer economyPlayer : economyPlayers) {
             list.removeIf(economyTopPlayer -> economyTopPlayer.getUuid().equals(economyPlayer.getUuid()));
@@ -186,8 +195,7 @@ public class EconomyService {
             list.add(new EconomyTopPlayer(economyPlayer.getUuid(), new UUIDFetcher().getNameByUniqueId(economyPlayer.getUuid()), coins));
         }
         list = list.stream().sorted((o1, o2) -> Double.compare(o2.getCoins(), o1.getCoins())).collect(Collectors.toList());
-        economyTopPlayer.clear();
-        economyTopPlayer.addAll(list);
+        this.economyTopPlayer = list;
     }
 
     public void pushTopPlayers() {
@@ -196,7 +204,7 @@ public class EconomyService {
         } catch (IOException e) {
             plugin.getLogger().log(Level.SEVERE,"An error occurred", e);
         }
-        economyTopPlayer.clear();
+        this.economyTopPlayer = new ArrayList<>();
     }
 
     private void convertTopPlayersYamlToJson() {
