@@ -26,7 +26,7 @@ public class ExpansionManager extends PlaceholderExpansion {
 
     @Override
     public String getAuthor() {
-        return plugin.getDescription().getAuthors().get(0);
+        return plugin.getDescription().getAuthors().isEmpty() ? "JonaHD345" : plugin.getDescription().getAuthors().get(0);
     }
 
     @Override
