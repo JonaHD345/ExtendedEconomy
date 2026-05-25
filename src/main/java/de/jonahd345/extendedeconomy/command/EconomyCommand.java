@@ -35,7 +35,7 @@ public class EconomyCommand implements CommandExecutor, TabCompleter {
                 Player target = Bukkit.getPlayer(args[1]);
 
                 if (target == null) {
-                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[0]);
+                    OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(args[1]);
 
                     sender.sendMessage(StringUtil.replacePlaceholder(Message.getMessageWithPrefix(Message.MONEY_OTHER),
                             Map.of("%Player%", offlinePlayer.getName(), "%Amount%", NumberUtil.formatNumber(plugin.getEconomy().getBalance(offlinePlayer)))));
